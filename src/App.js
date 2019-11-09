@@ -1,5 +1,6 @@
 import React from 'react';
 import Login from './Login.js';
+import Grid from './Grid.js';
 
 function App() {
     return (
@@ -10,6 +11,7 @@ function App() {
 
             <main>
                 <Login />
+                <Grid />
             </main>
         </div>
     );

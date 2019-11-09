@@ -1,0 +1,29 @@
+.grid {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+}
+
+.card {
+    background: tomato;
+    border-radius: 10px;
+    border: 1px solid black;
+    box-sizing: border-box;
+    color: white;
+    font-weight: 400;
+    font-size: 8vmin;
+    text-align: center;
+    margin-top: 20px;
+    /* keep aspect ratio */
+    padding-top: 40%;
+    width: 30%;
+    position: relative;
+}
+
+.card > .card__content {
+    /* center content */
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+}
