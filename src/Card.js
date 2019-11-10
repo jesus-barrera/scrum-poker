@@ -3,29 +3,25 @@ import React from 'react';
 class Card extends React.Component {
     constructor(props) {
         super(props);
-        this.toggle = this.toggle.bind(this);
-        this.state = { active: false };
+        this.handleClick = this.handleClick.bind(this);
     }
 
-    toggle(e) {
-        e.preventDefault();
-        this.setState({ active: ! this.state.active });
+    handleClick(e) {
+        this.props.onClick(this.props.label);
     }
 
     render() {
-        var className = 'card' + (this.state.active ? ' active' : '');
-
         return (
             <div
-                className={className}
-                onClick={this.toggle}
+                className={'card' + (this.props.active ? ' active' : '')}
+                onClick={this.handleClick}
             >
                 <div className="card__name">
                     {this.props.name}
                 </div>
 
                 <div className="card__content">
-                    {this.props.value}
+                    {this.props.label}
                 </div>
             </div>
         );
