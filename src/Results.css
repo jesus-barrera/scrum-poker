@@ -1,0 +1,14 @@
+.results {
+    margin-bottom: 20px;
+}
+
+.results__table th, .results__table td {
+    text-align: center;
+}
+
+.results__summary {
+    margin: 20px 0;
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+}

@@ -1,8 +1,11 @@
 import React from 'react';
 import Login from './Login.js';
-import Grid from './Grid.js';
+import TeamView from './TeamView.js';
+import MasterView from './MasterView.js';
 
 function App() {
+    var session = {name: "Nombre de la sesión", id: "5899999"};
+
     return (
         <div>
             <header>
@@ -10,8 +13,7 @@ function App() {
             </header>
 
             <main>
-                <Login />
-                <Grid />
+                <MasterView session={session}/>
             </main>
         </div>
     );
