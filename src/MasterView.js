@@ -1,4 +1,5 @@
 import React from 'react';
+import {Page, Header} from './layout';
 import UsersList from './UsersList';
 import Results from './Results';
 import './MasterView.css';
@@ -122,11 +123,14 @@ class TeamView extends React.Component {
     }
 
     render() {
+        const {session} = this.props;
+
         if (this.state.users.length === 0) {
             return (
                 <div className="no-users">
                     <h3>¿Ontán todos?</h3>
                     <p>Esperando a que los miembros del equipo se unan.</p>
+                    <p>Usa el ID de la sesión <b>{session.id}</b> para unirte a la sala.</p>
                 </div>
             );
         }
@@ -140,7 +144,20 @@ class TeamView extends React.Component {
             : <button onClick={this.handleReset}>Nueva Votación</button>;
 
         return (
-            <div>
+            <Page
+                header={
+                    <Header>
+                        <div className="session">
+                            <span className="session__name">
+                                {session.name} |
+                            </span>
+                            <span className="session__id">
+                                <b> ID</b>: {session.id}
+                            </span>
+                        </div>
+                    </Header>
+                }
+            >
                 {results}
                 <UsersList
                     users={this.state.users}
@@ -149,7 +166,7 @@ class TeamView extends React.Component {
                 <div className="actions">
                     {button}
                 </div>
-            </div>
+            </Page>
         );
     }
 }

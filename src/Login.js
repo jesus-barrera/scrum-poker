@@ -1,13 +1,14 @@
 import React from 'react';
+import {Header, Page} from './layout';
 import JoinForm from './JoinForm';
 import CreateForm from './CreateForm';
 
 function Login() {
     return (
-        <div>
+        <Page>
             <JoinForm />
             <CreateForm />
-        </div>
+        </Page>
     );
 }
 

@@ -1,14 +1,21 @@
 import React from 'react';
+import {Header, Page} from './layout';
 import Grid from './Grid';
 
 class TeamView extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
     render() {
+        const {user} = this.props;
+
         return (
-            <Grid />
+            <Page
+                header={
+                    <Header>
+                        <div>{user.name}</div>
+                    </Header>
+                }
+            >
+                <Grid />
+            </Page>
         );
     }
 }

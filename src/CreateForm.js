@@ -17,7 +17,6 @@ class CreateForm extends React.Component {
 
     handleSubmit(e) {
         e.preventDefault();
-        console.log(this.state);
     }
 
     render() {
