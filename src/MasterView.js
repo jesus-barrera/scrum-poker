@@ -3,6 +3,7 @@ import {Page, Header} from './layout';
 import UsersList from './UsersList';
 import Results from './Results';
 import './MasterView.css';
+import io from 'socket.io-client';
 
 class TeamView extends React.Component {
     constructor(props) {
@@ -19,16 +20,36 @@ class TeamView extends React.Component {
     }
 
     componentDidMount() {
-        this.setState({ users: [
-            { name: "Usuario 1", card: "1" },
-            { name: "Usuario 1", card: "2" },
-            { name: "Usuario 1", card: "2" },
-            { name: "Usuario 1", card: "13" },
-            { name: "Usuario 1", card: null },
-            { name: "Usuario 2", card: "100" },
-            { name: "Usuario 3", card: null },
-            { name: "Usuario 3", card: "100" }
-        ]});
+        var socket = io();
+
+        socket.on('user:connect', (name, id) => {
+            var {users} = this.state;
+            var newUser = { name, id };
+
+            users = users.concat(newUser);
+
+            this.setState({ users });
+        });
+
+        socket.on('user:select-card', (id, card) => {
+            var {users} = this.state;
+            var i = users.findIndex((user) => user.id === id);
+
+            users[i].card = card;
+
+            this.setState({ users: users.concat() });
+        });
+
+        socket.on('user:disconnect', (id) => {
+            var {users} = this.state;
+            var i = users.findIndex((user) => user.id === id);
+
+            users.splice(i, 1);
+
+            this.setState({ users: users.concat() });
+        });
+
+        this.socket = socket;
     }
 
     getEmptyResults() {
@@ -50,6 +71,8 @@ class TeamView extends React.Component {
             results: this.getEmptyResults(),
             voting: true
         });
+
+        this.socket.emit('reset');
     }
 
     handleResults() {

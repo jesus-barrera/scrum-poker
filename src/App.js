@@ -18,22 +18,18 @@ class App extends React.Component {
     }
 
     handleJoin(data) {
-        setTimeout(() => {
-            this.setState({
-                view: 'join',
-                session: {name: 'Sin nombre', id: data.session},
-                user: {username: data.username}
-            });
-        }, 1000);
+        this.setState({
+            view: 'join',
+            session: {name: 'Sin nombre', id: data.session},
+            user: {username: data.username}
+        });
     }
 
     handleCreate(data) {
-        setTimeout(() => {
-            this.setState({
-                view: 'master',
-                session: {name: data.session, id: '2213123123'},
-            });
-        }, 1000);
+        this.setState({
+            view: 'master',
+            session: {name: data.session, id: '2213123123'},
+        });
     }
 
     render() {
