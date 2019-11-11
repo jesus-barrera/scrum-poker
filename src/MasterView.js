@@ -24,9 +24,9 @@ class TeamView extends React.Component {
             { name: "Usuario 1", card: "2" },
             { name: "Usuario 1", card: "2" },
             { name: "Usuario 1", card: "13" },
-            { name: "Usuario 1", card: "Bk" },
+            { name: "Usuario 1", card: null },
             { name: "Usuario 2", card: "100" },
-            { name: "Usuario 3", card: "100" },
+            { name: "Usuario 3", card: null },
             { name: "Usuario 3", card: "100" }
         ]});
     }

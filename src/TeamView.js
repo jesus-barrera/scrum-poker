@@ -10,7 +10,7 @@ class TeamView extends React.Component {
             <Page
                 header={
                     <Header>
-                        <div>{user.name}</div>
+                        <div>{user.username}</div>
                     </Header>
                 }
             >
