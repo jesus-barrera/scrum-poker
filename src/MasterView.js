@@ -32,6 +32,10 @@ class TeamView extends React.Component {
             users[i].card = card;
 
             this.setState({ users: [...users] });
+
+            if (card === 'Bk') {
+                alert(users[i].username + ' propone un descanso');
+            }
         });
 
         socket.on('user left', (id) => {

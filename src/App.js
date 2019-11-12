@@ -17,7 +17,7 @@ class App extends React.Component {
             user: null
         };
 
-        this.socket = io();
+        this.socket = io(":8080");
     }
 
     handleJoin(data) {
