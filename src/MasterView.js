@@ -31,7 +31,7 @@ class TeamView extends React.Component {
 
             users[i].card = card;
 
-            this.setState({ users: users.concat() });
+            this.setState({ users: [...users] });
         });
 
         socket.on('user left', (id) => {
@@ -40,7 +40,7 @@ class TeamView extends React.Component {
 
             users.splice(i, 1);
 
-            this.setState({ users: users.concat() });
+            this.setState({ users: [...users] });
         });
     }
 
@@ -64,19 +64,20 @@ class TeamView extends React.Component {
 
     render() {
         const {session} = this.props;
+        const {users, voting, results} = this.state;
 
         return (
             <Page
                 header={<MasterViewHeader session={session} />}
             >
-                {this.state.users.length === 0 ?
+                {voting && users.length === 0 ?
                     <NoUsersMessage sessionId={session.id} /> :
                     <Content
                         onStartVoting={this.handleStartVoting}
                         onEndVoting={this.handleEndVoting}
-                        voting={this.state.voting}
-                        results={this.state.results}
-                        users={this.state.users}
+                        voting={voting}
+                        results={results}
+                        users={users}
                     />
                 }
             </Page>
@@ -110,22 +111,46 @@ function NoUsersMessage(props) {
 }
 
 function Content(props) {
-    var button = props.voting
-        ? <button onClick={props.onEndVoting}>Terminar Votación</button>
-        : <button onClick={props.onStartVoting}>Nueva Votación</button>;
+    return (
+        props.voting ?
+            <VotingPanel
+                users={props.users}
+                onEndVoting={props.onEndVoting}
+            /> :
+            <ResultsPanel
+                results={props.results}
+                onStartVoting={props.onStartVoting}
+            />
+    );
+}
 
+function VotingPanel(props) {
     return (
         <div>
-            {props.results && <Results {...props.results} />}
             <UsersList
                 users={props.users}
-                showResponse={! props.voting}
+                showResponse={false}
             />
             <div className="actions">
-                {button}
+                <button onClick={props.onEndVoting}>Terminar Votación</button>
             </div>
         </div>
     );
+}
+
+function ResultsPanel(props) {
+    return (
+        <div>
+            <Results {...props.results} />
+            <UsersList
+                users={props.results.users}
+                showResponse={true}
+            />
+            <div className="actions">
+                <button onClick={props.onStartVoting}>Nueva Votación</button>
+            </div>
+        </div>
+    )
 }
 
 export default TeamView;

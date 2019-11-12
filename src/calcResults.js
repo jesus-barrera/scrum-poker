@@ -10,6 +10,7 @@ function calcResults(participants) {
 
 function getEmptyResults() {
     return {
+        users: [],
         cards: [],
         max: undefined,
         min: undefined,
@@ -27,6 +28,8 @@ function countVote(results, participant, i) {
         updateMode(mode, card, cards[card]);
         updateMinMax(results, card, i);
     }
+
+    results.users.push(Object.assign({}, participant));
 
     return results;
 }

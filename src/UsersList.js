@@ -28,8 +28,8 @@ function UsersList(props) {
                 </tr>
             </thead>
             <tbody>
-                {props.users.map((user, key) =>
-                    <User {...user} showResponse={props.showResponse} key={key} />
+                {props.users.map((user) =>
+                    <User {...user} showResponse={props.showResponse} key={user.id} />
                 )}
             </tbody>
         </table>

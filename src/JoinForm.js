@@ -39,7 +39,7 @@ class JoinForm extends React.Component {
                 <fieldset>
                     <input
                         name="sessionId"
-                        placeholder="ID de Sesión"
+                        placeholder="ID de sesión"
                         onChange={this.handleInput}
                         onBlur={this.handleBlur}
                         value={this.state.sessionId}
@@ -48,7 +48,7 @@ class JoinForm extends React.Component {
                 <fieldset>
                     <input
                         name="username"
-                        placeholder="Tú Nombre"
+                        placeholder="Tú nombre"
                         onChange={this.handleInput}
                         onBlur={this.handleBlur}
                         value={this.state.username}

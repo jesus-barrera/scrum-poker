@@ -42,7 +42,7 @@ class CreateForm extends React.Component {
                         onBlur={this.trimInput}
                         value={this.state.sessionName}
                         name="sessionName"
-                        placeholder="Nombre de la Sesión"
+                        placeholder="Nombre de la sesión"
                     />
                 </fieldset>
 

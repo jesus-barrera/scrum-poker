@@ -1,7 +1,6 @@
 import React from 'react';
 import {Header, Page} from './layout';
 import Grid from './Grid';
-import io from 'socket.io-client';
 
 class TeamView extends React.Component {
     constructor(props) {
