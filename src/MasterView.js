@@ -3,6 +3,7 @@ import {Page, Header} from './layout';
 import UsersList from './UsersList';
 import Results from './Results';
 import './MasterView.css';
+import {calcResults, getEmptyResults} from './calcResults';
 import io from 'socket.io-client';
 
 class TeamView extends React.Component {
@@ -15,7 +16,7 @@ class TeamView extends React.Component {
         this.state = {
             voting: true,
             users: [],
-            results: this.getEmptyResults()
+            results: getEmptyResults()
         };
     }
 
@@ -52,97 +53,21 @@ class TeamView extends React.Component {
         this.socket = socket;
     }
 
-    getEmptyResults() {
-        return {
-            cards: [],
-            max: undefined,
-            min: undefined,
-            mode: { count: 0, cards: [] }
-        };
-    }
-
-    handleReset() {
-        this.state.users.forEach((user, index) => {
-            user.card = null;
-        });
+    handleStartVoting() {
+        this.state.users.forEach((user) => user.card = null);
 
         this.setState({
             users: this.state.users,
-            results: this.getEmptyResults(),
+            results: getEmptyResults(),
             voting: true
         });
-
-        this.socket.emit('reset');
     }
 
-    handleResults() {
-        var results = this.getEmptyResults();
-
-        this.state.users.reduce(this.countVote, results);
-
-        results.cards = this.orderCardsByFrequency(results.cards);
-
+    handleEndVoting() {
         this.setState({
-            results: results,
+            results: calcResults(this.state.users),
             voting: false
         });
-    }
-
-    countVote(results, user, i) {
-        var card = user.card;
-
-        if (card) {
-            let {cards, mode} = results;
-
-            this.updateVotes(cards, card);
-            this.updateMode(mode, card, cards[card]);
-            this.updateMinMax(results, card, i);
-        }
-
-        return results;
-    }
-
-    updateVotes(cards, card) {
-        if (! cards[card]) {
-            cards[card] = 1;
-        } else {
-            cards[card]++;
-        }
-    }
-
-    updateMode(mode, card, count) {
-        if (count > mode.count) {
-            mode.count = count;
-            mode.cards = [card];
-        } else if (count === mode.count) {
-            mode.cards.push(card);
-        }
-    }
-
-    updateMinMax(results, card, i) {
-        var {min, max} = results;
-
-        if (isNaN( card = Number(card) )) {
-            return;
-        }
-
-        if (i === 0 || card < min) {
-            results.min = card;
-        }
-
-        if (i === 0 || card > max) {
-            results.max = card;
-        }
-    }
-
-    orderCardsByFrequency(cards) {
-        var ordered = [];
-
-        for (var card in cards) {
-            ordered.push({ card: card, count: cards[card] });
-        }
-
-        return ordered.sort((a, b) => b.count - a.count);
     }
 
     render() {
