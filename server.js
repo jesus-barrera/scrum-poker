@@ -20,7 +20,7 @@ io.on('connection', function (socket) {
             return;
         }
 
-        // Store user data and assign it an ID
+        // Store user data and assign an ID
         user.username = username;
         user.id = socket.id;
         isLogged = true;
@@ -30,7 +30,7 @@ io.on('connection', function (socket) {
 
         rooms[room].numUsers++;
 
-        // Tell client that has succesfully joined
+        // Tell client that has succesully joined
         socket.emit('login succesful', rooms[room]);
 
         // Tell other clients a new user is connected
@@ -38,12 +38,13 @@ io.on('connection', function (socket) {
 
         // User leaves session
         socket.on('disconnect', function () {
-            socket.to(room).emit('user left', socket.id);
+            socket.to(room).emit('user left', user);
             rooms[room].numUsers--;
         });
 
-        socket.on('select card', function (card) {
-            socket.to(room).emit('select card'. { userid: user.id, card: card });
+        // Handle card selection
+        socket.on('card changed', function (card) {
+            socket.to(room).emit('card changed', { user, card });
         });
     });
 
@@ -67,14 +68,14 @@ io.on('connection', function (socket) {
         // Acknowledge room creation to client
         socket.emit('room created', {name: room.name, id: room.id});
 
-        // Restart voting
-        socket.on('reset', function () {
-            socket.to(room.id).emit('restart');
+        // Tell clients the voting began
+        socket.on('start voting', function () {
+            socket.to(room.id).emit('start voting');
         });
 
         // End session
         socket.on('disconnect', function () {
-            socket.to(room.id).emit('session terminated');
+            socket.to(room.id).emit('room closed');
             delete rooms[room.id];
         });
     });
