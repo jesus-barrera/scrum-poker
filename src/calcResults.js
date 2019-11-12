@@ -74,5 +74,4 @@ function orderCardsByFrequency(cards) {
     return ordered.sort((a, b) => b.count - a.count);
 }
 
-export getEmptyResults;
 export default calcResults;
