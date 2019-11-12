@@ -3,20 +3,19 @@ var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 
 var rooms = {};
+var roomId = 0;
 
 io.on('connection', function (socket) {
     var isLogged = false;
     var user = {};
 
     // Join room
-    socket.on('join room', function (data) {
-        var {room, username} = data;
-
+    socket.on('join room', function (room, username, fn) {
         if (isLogged) return;
 
         // Check if the room exists
         if (! rooms.hasOwnProperty(room)) {
-            socket.emit('login failed', 'The room [' + room + '] does not exist');
+            fn({error: 'La Sesión con ID [' + room + '] no existe!'});
             return;
         }
 
@@ -25,37 +24,32 @@ io.on('connection', function (socket) {
         user.id = socket.id;
         isLogged = true;
 
-        // Add client to the room
         socket.join(room);
 
-        rooms[room].numUsers++;
-
         // Tell client that has succesully joined
-        socket.emit('login succesful', rooms[room]);
+        fn({id: room, name: rooms[room].name});
 
         // Tell other clients a new user is connected
         socket.to(room).emit('user joined', user);
 
         // User leaves session
         socket.on('disconnect', function () {
-            socket.to(room).emit('user left', user);
-            rooms[room].numUsers--;
+            socket.to(room).emit('user left', user.id);
         });
 
         // Handle card selection
         socket.on('card changed', function (card) {
-            socket.to(room).emit('card changed', { user, card });
+            socket.to(room).emit('card changed', user.id, card);
         });
     });
 
     // Create a new room
-    socket.on('create room', function (name) {
+    socket.on('create room', function (name, fn) {
         if (isLogged) return;
 
         var room = {
             name: name,
-            id: socket.id,
-            numUsers: 0,
+            id: ++roomId,
             owner: socket
         };
 
@@ -66,7 +60,7 @@ io.on('connection', function (socket) {
         isLogged = true;
 
         // Acknowledge room creation to client
-        socket.emit('room created', {name: room.name, id: room.id});
+        fn({name: room.name, id: room.id});
 
         // Tell clients the voting began
         socket.on('start voting', function () {

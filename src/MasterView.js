@@ -4,34 +4,28 @@ import UsersList from './UsersList';
 import Results from './Results';
 import './MasterView.css';
 import calcResults from './calcResults';
-import io from 'socket.io-client';
 
 class TeamView extends React.Component {
     constructor(props) {
         super(props);
-        this.handleStartVoting = this.handleStartVotin.bind(this);
+        this.handleStartVoting = this.handleStartVoting.bind(this);
         this.handleEndVoting = this.handleEndVoting.bind(this);
 
         this.state = {
-            voting: false,
+            voting: true,
             users: [],
             results: null
         };
     }
 
     componentDidMount() {
-        var socket = io();
+        var socket = this.props.socket;
 
-        socket.on('user:connect', (name, id) => {
-            var {users} = this.state;
-            var newUser = { name, id };
-
-            users = users.concat(newUser);
-
-            this.setState({ users });
+        socket.on('user joined', (user) => {
+            this.setState({ users: this.state.users.concat(user) });
         });
 
-        socket.on('user:select-card', (id, card) => {
+        socket.on('card changed', (id, card) => {
             var {users} = this.state;
             var i = users.findIndex((user) => user.id === id);
 
@@ -40,7 +34,7 @@ class TeamView extends React.Component {
             this.setState({ users: users.concat() });
         });
 
-        socket.on('user:disconnect', (id) => {
+        socket.on('user left', (id) => {
             var {users} = this.state;
             var i = users.findIndex((user) => user.id === id);
 
@@ -48,18 +42,17 @@ class TeamView extends React.Component {
 
             this.setState({ users: users.concat() });
         });
-
-        this.socket = socket;
     }
 
     handleStartVoting() {
         this.state.users.forEach((user) => user.card = null);
 
         this.setState({
-            users: this.state.users,
             results: null,
             voting: true
         });
+
+        this.props.socket.emit('start voting');
     }
 
     handleEndVoting() {
@@ -70,11 +63,13 @@ class TeamView extends React.Component {
     }
 
     render() {
+        const {session} = this.props;
+
         return (
             <Page
-                header={<MasterViewHeader session={this.props.session} />}
+                header={<MasterViewHeader session={session} />}
             >
-                {this.state.users.length == 0 ?
+                {this.state.users.length === 0 ?
                     <NoUsersMessage sessionId={session.id} /> :
                     <Content
                         onStartVoting={this.handleStartVoting}
@@ -115,16 +110,16 @@ function NoUsersMessage(props) {
 }
 
 function Content(props) {
-    var button = this.props.voting
-        ? <button onClick={this.props.onEndVoting}>Terminar Votación</button>
-        : <button onClick={this.props.onStartVoting}>Nueva Votación</button>;
+    var button = props.voting
+        ? <button onClick={props.onEndVoting}>Terminar Votación</button>
+        : <button onClick={props.onStartVoting}>Nueva Votación</button>;
 
     return (
         <div>
-            {this.props.results && <Results {...this.props.results} />}
+            {props.results && <Results {...props.results} />}
             <UsersList
-                users={this.props.users}
-                showResponse={! this.props.voting}
+                users={props.users}
+                showResponse={! props.voting}
             />
             <div className="actions">
                 {button}

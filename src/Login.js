@@ -5,9 +5,9 @@ import CreateForm from './CreateForm';
 
 function Login(props) {
     return (
-        <Page>
-            <JoinForm onSubmit={props.handleJoin} />
+        <Page header={<Header />}>
             <CreateForm onSubmit={props.handleCreate} />
+            <JoinForm onSubmit={props.handleJoin} />
         </Page>
     );
 }

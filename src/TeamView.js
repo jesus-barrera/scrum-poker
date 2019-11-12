@@ -13,21 +13,18 @@ class TeamView extends React.Component {
     }
 
     componentDidMount() {
-        var socket = io();
-
-        socket.on('connect', () => {
-            socket.emit('user:login', this.props.user.username);
-        });
-
-        socket.on('reset', () => {
+        this.props.socket.on('start voting', () => {
             this.setState({ choice: null });
         });
 
-        this.socket = socket;
+        this.props.socket.on('room closed', () => {
+            alert('La sesión ha sido terminada.');
+            window.location.reload(false);
+        });
     }
 
     handleCardChange(card) {
-        this.socket.emit('select-card', card);
+        this.props.socket.emit('card changed', card);
 
         this.setState({ choice: card });
     }

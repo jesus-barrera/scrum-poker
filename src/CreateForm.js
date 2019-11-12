@@ -3,10 +3,11 @@ import React from 'react';
 class CreateForm extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {session: ''};
+        this.state = {sessionName: ''};
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleInput = this.handleInput.bind(this);
+        this.handleBlur = this.handleBlur.bind(this);
     }
 
     handleInput(e) {
@@ -15,8 +16,18 @@ class CreateForm extends React.Component {
         });
     }
 
+    handleBlur(e) {
+        this.setState({
+            [e.target.name]: e.target.value.trim()
+        });
+    }
+
     handleSubmit(e) {
         e.preventDefault();
+        if (! this.state.sessionName) {
+            alert("Datos incorrectos!");
+            return;
+        }
 
         this.props.onSubmit(this.state);
     }
@@ -28,8 +39,9 @@ class CreateForm extends React.Component {
                 <fieldset>
                     <input
                         onChange={this.handleInput}
-                        value={this.state.session}
-                        name="session"
+                        onBlur={this.trimInput}
+                        value={this.state.sessionName}
+                        name="sessionName"
                         placeholder="Nombre de la Sesión"
                     />
                 </fieldset>

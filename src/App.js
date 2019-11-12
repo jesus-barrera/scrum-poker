@@ -2,6 +2,7 @@ import React from 'react';
 import Login from './Login.js';
 import TeamView from './TeamView.js';
 import MasterView from './MasterView.js';
+import io from 'socket.io-client';
 
 class App extends React.Component {
     constructor(props) {
@@ -15,20 +16,31 @@ class App extends React.Component {
             session: null,
             user: null
         };
+
+        this.socket = io();
     }
 
     handleJoin(data) {
-        this.setState({
-            view: 'join',
-            session: {name: 'Sin nombre', id: data.session},
-            user: {username: data.username}
+        var {sessionId, username} = data;
+
+        this.socket.emit('join room', sessionId, username, (res) => {
+            if (res.error) {
+                alert(res.error);
+            } else {
+                this.setState({
+                    view: 'team',
+                    session: res,
+                    user: { username: data.username }
+                });
+            }
         });
     }
 
     handleCreate(data) {
-        this.setState({
-            view: 'master',
-            session: {name: data.session, id: '2213123123'},
+        var {sessionName} = data;
+
+        this.socket.emit('create room', sessionName, (session) => {
+            this.setState({ view: 'master', session: session });
         });
     }
 
@@ -43,8 +55,13 @@ class App extends React.Component {
 
         return (
             view === 'master'
-                ? <MasterView session={session} />
-                : <TeamView session={session} user={user} />
+                ? <MasterView
+                    socket={this.socket}
+                    session={session} />
+                : <TeamView
+                    socket={this.socket}
+                    session={session}
+                    user={user} />
         );
     }
 }

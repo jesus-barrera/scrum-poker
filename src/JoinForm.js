@@ -3,10 +3,11 @@ import React from 'react';
 class JoinForm extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {session: '', username: ''};
+        this.state = {sessionId: '', username: ''};
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleInput = this.handleInput.bind(this);
+        this.handleBlur = this.handleBlur.bind(this);
     }
 
     handleInput(e) {
@@ -15,8 +16,18 @@ class JoinForm extends React.Component {
         });
     }
 
+    handleBlur(e) {
+        this.setState({
+            [e.target.name]: e.target.value.trim()
+        });
+    }
+
     handleSubmit(e) {
         e.preventDefault();
+        if (! this.state.sessionId || ! this.state.username) {
+            alert("Datos incorrectos!");
+            return;
+        }
 
         this.props.onSubmit(this.state);
     }
@@ -27,10 +38,11 @@ class JoinForm extends React.Component {
                 <h3>Unirse a una sesión</h3>
                 <fieldset>
                     <input
-                        name="session"
-                        placeholder="No. de Sesión"
+                        name="sessionId"
+                        placeholder="ID de Sesión"
                         onChange={this.handleInput}
-                        value={this.state.session}
+                        onBlur={this.handleBlur}
+                        value={this.state.sessionId}
                     />
                 </fieldset>
                 <fieldset>
@@ -38,6 +50,7 @@ class JoinForm extends React.Component {
                         name="username"
                         placeholder="Tú Nombre"
                         onChange={this.handleInput}
+                        onBlur={this.handleBlur}
                         value={this.state.username}
                     />
                 </fieldset>

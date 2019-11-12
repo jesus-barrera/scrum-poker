@@ -12,7 +12,7 @@ function User(props) {
 
     return (
         <tr className="user">
-            <td className="user__name">{props.name}</td>
+            <td className="user__name">{props.username}</td>
             <td className="user__card">{card}</td>
         </tr>
     );
