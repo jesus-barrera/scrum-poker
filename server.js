@@ -50,7 +50,7 @@ io.on('connection', function (socket) {
         var room = {
             name: name,
             id: ++roomId,
-            owner: socket
+            owner: socket.id
         };
 
         rooms[room.id] = room;

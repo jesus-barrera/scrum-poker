@@ -58,6 +58,7 @@ class App extends React.Component {
                 ? <MasterView
                     socket={this.socket}
                     session={session} />
+
                 : <TeamView
                     socket={this.socket}
                     session={session}
