@@ -22,19 +22,22 @@ class TeamView extends React.Component {
             this.setState({ choice: null });
         });
 
-        socket.on('room closed', () => {
-            alert('La sesión ha sido terminada.');
-        });
+        socket.on('room closed', () => { this.handleRoomClosed() });
 
         socket.on('reconnect', () => {
             socket.emit('join room', session.id, user.username, (res) => {
                 if (res.error) {
-                    return;
+                    this.handleRoomClosed();
                 }
 
                 socket.emit('card changed', this.state.choice);
             });
         });
+    }
+
+    handleRoomClosed() {
+        alert('La Sesión fue terminada.');
+        window.location.reload(false);
     }
 
     handleCardChange(card) {

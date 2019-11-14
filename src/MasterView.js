@@ -32,10 +32,6 @@ class TeamView extends React.Component {
             users[i].card = card;
 
             this.setState({ users: [...users] });
-
-            if (card === 'Bk') {
-                alert(users[i].username + ' propone un descanso');
-            }
         });
 
         socket.on('user left', (id) => {
@@ -45,6 +41,11 @@ class TeamView extends React.Component {
             users.splice(i, 1);
 
             this.setState({ users: [...users] });
+        });
+
+        socket.on('disconnect', () => {
+            alert('La Sesión fue terminada.');
+            window.location.reload(false);
         });
     }
 
