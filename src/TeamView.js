@@ -12,10 +12,12 @@ class TeamView extends React.Component {
     }
 
     componentDidMount() {
-        this.addListeners(this.props.socket);
+        this.addListeners();
     }
 
-    addListeners(socket) {
+    addListeners() {
+        var {user, session, socket} = this.props;
+
         socket.on('start voting', () => {
             this.setState({ choice: null });
         });
@@ -25,11 +27,13 @@ class TeamView extends React.Component {
         });
 
         socket.on('reconnect', () => {
-            socket.emit('join room', this.props.session.id, username);
-        });
+            socket.emit('join room', session.id, user.username, (res) => {
+                if (res.error) {
+                    return;
+                }
 
-        socket.on('reconnect_error', () => {
-            alert('Error al reconectar.');
+                socket.emit('card changed', this.state.choice);
+            });
         });
     }
 
