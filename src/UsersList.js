@@ -12,6 +12,7 @@ function User(props) {
 
     return (
         <tr className="user">
+            <td className="user__id">{props.index + 1}</td>
             <td className="user__name">{props.username}</td>
             <td className="user__card">{card}</td>
         </tr>
@@ -23,13 +24,17 @@ function UsersList(props) {
         <table className="users-list">
             <thead>
                 <tr>
-                    <th>Nombre</th>
-                    <th>Carta</th>
+                    <th className="user__id">No.</th>
+                    <th className="user__name">Nombre</th>
+                    <th className="user__card">Carta</th>
                 </tr>
             </thead>
             <tbody>
-                {props.users.map((user) =>
-                    <User {...user} showResponse={props.showResponse} key={user.id} />
+                {props.users.map((user, index) =>
+                    <User {...user}
+                        index={index}
+                        showResponse={props.showResponse}
+                        key={user.id} />
                 )}
             </tbody>
         </table>

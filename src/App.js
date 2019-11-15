@@ -23,11 +23,11 @@ class App extends React.Component {
         this.socket = io(":8080");
 
         this.socket.on('disconnect', () => {
-            this.alert({type: "error", message: "Se perdió la conexión!"});
+            this.alert("error", "Se perdió la conexión!");
         });
 
         this.socket.on('reconnect', () => {
-            this.alert({type: "success", message: "Conectado!"});
+            this.alert("success", "Conectado!");
         });
     }
 

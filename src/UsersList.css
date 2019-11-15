@@ -1,5 +1,14 @@
+.user__name, .user_id {
+    text-align: left;
+}
+
+.user__id {
+    width: 1%;
+}
+
 .user__card {
     text-align: center;
+    width: 115px;
 }
 
 .no-users {
