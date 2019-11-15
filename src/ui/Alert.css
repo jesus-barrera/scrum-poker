@@ -10,7 +10,7 @@
 
 .alert {
     padding: 20px;
-    opacity: 0.95;
+    opacity: 0.9;
     font-size: 1rem;
     color: white;
     margin-bottom: 5px;
@@ -23,7 +23,12 @@
 }
 
 @media(max-width: 800px) {
+    .alert-container {
+        padding: 0;
+    }
+
     .alert {
+        border-radius: 0;
         box-sizing: border-box;
         max-width: 100%;
     }

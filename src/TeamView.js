@@ -36,7 +36,7 @@ class TeamView extends React.Component {
     }
 
     handleRoomClosed() {
-        alert('La Sesión fue terminada.');
+        alert('La sesión fue terminada.');
         window.location.reload(false);
     }
 

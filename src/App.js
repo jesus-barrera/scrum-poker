@@ -11,6 +11,7 @@ class App extends React.Component {
 
         this.handleJoin = this.handleJoin.bind(this);
         this.handleCreate = this.handleCreate.bind(this);
+        this.alert = this.alert.bind(this);
 
         this.state = {
             view: null,
@@ -30,15 +31,17 @@ class App extends React.Component {
         });
     }
 
-    alert(toast) {
+    alert(type, message) {
+        var alert = {type, message};
+
         this.setState({
-            alerts: this.state.alerts.concat(toast)
+            alerts: this.state.alerts.concat(alert)
         });
 
         setTimeout(() => {
             this.setState((props, state) => {
                 let alerts = this.state.alerts;
-                let index = alerts.indexOf(toast);
+                let index = alerts.indexOf(alert);
 
                 alerts.splice(index, 1);
 
@@ -84,14 +87,18 @@ class App extends React.Component {
     render() {
         const {view, session, user} = this.state;
 
-        var alerts = this.state.alerts.map((alert, index) => {
-            return <Alert type={alert.type} key={index}>{alert.message}</Alert>
-        });
+        var alerts = (
+            <div className="alert-container">
+                {this.state.alerts.map((alert, index) =>
+                    <Alert type={alert.type} key={index}>{alert.message}</Alert>
+                )}
+            </div>
+        );
 
         if (! session) {
             return(
             <div>
-                <div className="alert-container">{alerts}</div>
+                {alerts}
                 <Login
                     handleJoin={this.handleJoin}
                     handleCreate={this.handleCreate} />
@@ -100,9 +107,10 @@ class App extends React.Component {
 
         return (
             <div>
-                <div className="alert-container">{alerts}</div>
+                {alerts}
                 {view === 'master'
                     ? <MasterView
+                        alert={this.alert}
                         socket={this.socket}
                         session={session} />
 

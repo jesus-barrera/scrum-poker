@@ -19,7 +19,11 @@ class TeamView extends React.Component {
     }
 
     componentDidMount() {
-        var socket = this.props.socket;
+        this.addListeners();
+    }
+
+    addListeners() {
+        var {socket, alert} = this.props;
 
         socket.on('user joined', (user) => {
             this.setState({ users: this.state.users.concat(user) });
@@ -32,6 +36,10 @@ class TeamView extends React.Component {
             users[i].card = card;
 
             this.setState({ users: [...users] });
+
+            if (card == 'Bk') {
+                alert("info", <span><b>{users[i].username}</b>: ¡Es hora de un descanso!</span>);
+            }
         });
 
         socket.on('user left', (id) => {
@@ -43,10 +51,12 @@ class TeamView extends React.Component {
             this.setState({ users: [...users] });
         });
 
-        socket.on('disconnect', () => {
-            alert('La Sesión fue terminada.');
-            window.location.reload(false);
-        });
+        socket.on('disconnect', () => this.handleRoomClosed());
+    }
+
+    handleRoomClosed() {
+        alert('La sesión fue terminada.');
+        window.location.reload(false);
     }
 
     handleStartVoting() {
@@ -108,7 +118,7 @@ function MasterViewHeader(props) {
 function NoUsersMessage(props) {
     return (
         <div className="no-users">
-            <h3>¿Ontán todos?</h3>
+            <h3>¿Dónde están todos?</h3>
             <p>Esperando a que los miembros del equipo se unan.</p>
             <p>Usa el ID de la sesión <b>{props.sessionId}</b> para unirte a la sala.</p>
         </div>

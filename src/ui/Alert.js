@@ -8,7 +8,6 @@ class Alert extends React.Component {
                 <div className="alert__content">
                     {this.props.children}
                 </div>
-                <button>OK</button>
             </div>
         );
     }
