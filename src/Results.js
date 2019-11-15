@@ -13,8 +13,8 @@ function Results(props) {
                         </span>
                     }
                 </div>
-                <div><b>Min: </b> {props.min}</div>
-                <div><b>Máx: </b> {props.max}</div>
+                <div><b>Min: </b> {props.min && props.min.card}</div>
+                <div><b>Máx: </b> {props.max && props.max.card}</div>
             </div>
             <table className="results__table">
                 <thead>

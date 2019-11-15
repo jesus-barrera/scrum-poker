@@ -37,7 +37,7 @@ class TeamView extends React.Component {
 
             this.setState({ users: [...users] });
 
-            if (card == 'Bk') {
+            if (card === 'Bk') {
                 alert("info", <span><b>{users[i].username}</b>: ¡Es hora de un descanso!</span>);
             }
         });

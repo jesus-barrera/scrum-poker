@@ -26,7 +26,7 @@ function countVote(results, participant, i) {
 
         updateVotes(cards, card);
         updateMode(mode, card, cards[card]);
-        updateMinMax(results, card, i);
+        updateMinMax(results, card);
     }
 
     results.users.push(Object.assign({}, participant));
@@ -51,20 +51,25 @@ function updateMode(mode, card, count) {
     }
 }
 
-function updateMinMax(results, card, i) {
+function updateMinMax(results, card) {
     var {min, max} = results;
+    var value = getCardValue(card);
 
-    if (isNaN( card = Number(card) )) {
+    if (isNaN(value)) {
         return;
     }
 
-    if (i === 0 || card < min) {
-        results.min = card;
+    if (min === undefined || value < min.value) {
+        results.min = {card, value};
     }
 
-    if (i === 0 || card > max) {
-        results.max = card;
+    if (max === undefined || value > max.value) {
+        results.max = {card, value};
     }
+}
+
+function getCardValue(card) {
+    return Number(card === "1/2" ? 0.5 : card === "Inf" ? Infinity : card);
 }
 
 function orderCardsByFrequency(cards) {
