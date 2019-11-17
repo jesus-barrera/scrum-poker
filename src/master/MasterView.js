@@ -1,5 +1,5 @@
 import React from 'react';
-import {Page, Header} from './layout';
+import {Page, Header} from '../common/layout';
 import UsersList from './UsersList';
 import Results from './Results';
 import './MasterView.css';

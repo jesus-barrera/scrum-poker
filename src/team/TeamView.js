@@ -1,5 +1,5 @@
 import React from 'react';
-import {Header, Page} from './layout';
+import {Header, Page} from '../common/layout';
 import Grid from './Grid';
 
 class TeamView extends React.Component {

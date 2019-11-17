@@ -1,8 +1,8 @@
 import React from 'react';
-import Login from './Login.js';
-import TeamView from './TeamView.js';
-import MasterView from './MasterView.js';
-import Alert from './ui/Alert.js';
+import Login from './login/Login.js';
+import TeamView from './team/TeamView.js';
+import MasterView from './master/MasterView.js';
+import Alert from './common/Alert.js';
 import io from 'socket.io-client';
 
 class App extends React.Component {
