@@ -1,8 +1,7 @@
 import React from 'react';
-import Login from './login/Login.js';
-import TeamView from './team/TeamView.js';
-import MasterView from './master/MasterView.js';
-import Alert from './common/Alert.js';
+import Login from './login/Login';
+import TeamView from './team/TeamView';
+import MasterView from './master/MasterView';
 import io from 'socket.io-client';
 
 class App extends React.Component {
@@ -11,114 +10,54 @@ class App extends React.Component {
 
         this.handleJoin = this.handleJoin.bind(this);
         this.handleCreate = this.handleCreate.bind(this);
-        this.alert = this.alert.bind(this);
 
         this.state = {
             view: null,
             session: null,
-            user: null,
-            alerts: []
+            user: null
         };
 
         this.socket = io(":8080");
-
-        this.socket.on('disconnect', () => {
-            this.alert("error", "Se perdió la conexión!");
-        });
-
-        this.socket.on('reconnect', () => {
-            this.alert("success", "Conectado!");
-        });
     }
 
-    alert(type, message) {
-        var alert = {type, message};
-
+    handleJoin(session, username) {
         this.setState({
-            alerts: this.state.alerts.concat(alert)
-        });
-
-        setTimeout(() => {
-            this.setState((props, state) => {
-                let alerts = this.state.alerts;
-                let index = alerts.indexOf(alert);
-
-                alerts.splice(index, 1);
-
-                return {alerts: [...alerts]};
-            });
-        }, 3000);
-    }
-
-    handleJoin(data) {
-        var {sessionId, username} = data;
-
-        if (this.socket.disconnected) {
-            alert("No se pudo conectar al servidor.");
-            return;
-        }
-
-        this.socket.emit('join room', sessionId, username, (res) => {
-            if (res.error) {
-                alert(res.error);
-            } else {
-                this.setState({
-                    view: 'team',
-                    session: res,
-                    user: { username: data.username }
-                });
-            }
+            view: 'team',
+            session: session,
+            user: {username}
         });
     }
 
-    handleCreate(data) {
-        var {sessionName} = data;
-
-        if (this.socket.disconnected) {
-            alert("No se pudo conectar al servidor.");
-            return;
-        }
-
-        this.socket.emit('create room', sessionName, (session) => {
-            this.setState({ view: 'master', session: session });
+    handleCreate(session) {
+        this.setState({
+            view: 'master',
+            session: session
         });
     }
 
     render() {
         const {view, session, user} = this.state;
 
-        var alerts = (
-            <div className="alert-container">
-                {this.state.alerts.map((alert, index) =>
-                    <Alert type={alert.type} key={index}>{alert.message}</Alert>
-                )}
-            </div>
-        );
-
         if (! session) {
-            return(
-            <div>
-                {alerts}
+            return (
                 <Login
-                    handleJoin={this.handleJoin}
-                    handleCreate={this.handleCreate} />
-            </div>);
+                    socket={this.socket}
+                    onJoin={this.handleJoin}
+                    onCreate={this.handleCreate} />
+            );
         }
 
         return (
-            <div>
-                {alerts}
-                {view === 'master'
-                    ? <MasterView
-                        alert={this.alert}
-                        socket={this.socket}
-                        session={session} />
-
-                    : <TeamView
-                        socket={this.socket}
-                        session={session}
-                        user={user} />}
-            </div>
+            view == 'master' ?
+                <MasterView
+                    socket={this.socket}
+                    session={session}
+                /> :
+                <TeamView
+                    socket={this.socket}
+                    session={session}
+                    user={user}
+                />
         );
     }
 }
