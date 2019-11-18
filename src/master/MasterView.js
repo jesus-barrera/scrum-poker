@@ -4,6 +4,7 @@ import UsersList from './UsersList';
 import Results from './Results';
 import './MasterView.css';
 import calcResults from './calcResults';
+import withNotifications from '../common/withNotifications';
 
 class TeamView extends React.Component {
     constructor(props) {
@@ -22,36 +23,55 @@ class TeamView extends React.Component {
         this.addListeners();
     }
 
+    componentWillUnmount() {
+        this.removeListeners();
+    }
+
     addListeners() {
-        var {socket, alert} = this.props;
+        var {socket} = this.props;
 
-        socket.on('user joined', (user) => {
-            this.setState({ users: this.state.users.concat(user) });
-        });
-
-        socket.on('card changed', (id, card) => {
-            var {users} = this.state;
-            var i = users.findIndex((user) => user.id === id);
-
-            users[i].card = card;
-
-            this.setState({ users: [...users] });
-
-            if (card === 'Bk') {
-                alert("info", <span><b>{users[i].username}</b>: ¡Es hora de un descanso!</span>);
-            }
-        });
-
-        socket.on('user left', (id) => {
-            var {users} = this.state;
-            var i = users.findIndex((user) => user.id === id);
-
-            users.splice(i, 1);
-
-            this.setState({ users: [...users] });
-        });
-
+        socket.on('user joined', (user) => this.handleUserJoined(user));
+        socket.on('card changed', (userId, card) => this.handleCardChanged(userId, card));
+        socket.on('user left', (userId) => this.handleUserLeft(userId));
         socket.on('disconnect', () => this.handleRoomClosed());
+    }
+
+    removeListeners() {
+        var {socket} = this.props;
+
+        socket.off('user joined');
+        socket.off('card changed');
+        socket.off('user left');
+        socket.off('disconnect');
+    }
+
+    handleUserJoined(user) {
+        this.setState({ users: this.state.users.concat(user) });
+    }
+
+    handleCardChanged(userId, card) {
+        var {users} = this.state;
+        var i = users.findIndex((user) => user.id === userId);
+
+        users[i].card = card;
+
+        this.setState({ users: [...users] });
+
+        if (card === 'Bk') {
+            this.props.notify({
+                type: "info",
+                message: <span><b>{users[i].username}</b>: ¡Es hora de un descanso!</span>
+            });
+        }
+    }
+
+    handleUserLeft(userId) {
+        var {users} = this.state;
+        var i = users.findIndex((user) => user.id === userId);
+
+        users.splice(i, 1);
+
+        this.setState({ users: [...users] });
     }
 
     handleRoomClosed() {
@@ -141,7 +161,7 @@ function Content(props) {
 
 function VotingPanel(props) {
     return (
-        <div>
+        <>
             <UsersList
                 users={props.users}
                 showResponse={false}
@@ -149,13 +169,13 @@ function VotingPanel(props) {
             <div className="actions">
                 <button onClick={props.onEndVoting}>Terminar Votación</button>
             </div>
-        </div>
+        </>
     );
 }
 
 function ResultsPanel(props) {
     return (
-        <div>
+        <>
             <Results {...props.results} />
             <UsersList
                 users={props.results.users}
@@ -164,8 +184,8 @@ function ResultsPanel(props) {
             <div className="actions">
                 <button onClick={props.onStartVoting}>Nueva Votación</button>
             </div>
-        </div>
+        </>
     )
 }
 
-export default TeamView;
+export default withNotifications(TeamView);
