@@ -36,7 +36,7 @@ class App extends React.Component {
     }
 
     render() {
-        const {view, session, user} = this.state;
+        var {view, session, user} = this.state;
 
         if (! session) {
             return (
@@ -47,17 +47,14 @@ class App extends React.Component {
             );
         }
 
+        var View = view === 'master' ? MasterView : TeamView;
+
         return (
-            view == 'master' ?
-                <MasterView
-                    socket={this.socket}
-                    session={session}
-                /> :
-                <TeamView
-                    socket={this.socket}
-                    session={session}
-                    user={user}
-                />
+            <View
+                socket={this.socket}
+                session={session}
+                user={user}
+            />
         );
     }
 }

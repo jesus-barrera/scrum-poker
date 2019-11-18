@@ -6,7 +6,7 @@ import './MasterView.css';
 import calcResults from './calcResults';
 import withNotifications from '../common/withNotifications';
 
-class TeamView extends React.Component {
+class MasterView extends React.Component {
     constructor(props) {
         super(props);
         this.handleStartVoting = this.handleStartVoting.bind(this);
@@ -188,4 +188,4 @@ function ResultsPanel(props) {
     )
 }
 
-export default withNotifications(TeamView);
+export default withNotifications(MasterView);
