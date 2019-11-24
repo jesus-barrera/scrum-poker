@@ -32,6 +32,8 @@ class MasterView extends React.Component {
 
         socket.on('user joined', (user) => this.handleUserJoined(user));
         socket.on('card changed', (userId, card) => this.handleCardChanged(userId, card));
+        socket.on('user disconnected', (userId) => this.handleUserDisconnected(userId));
+        socket.on('user connected', (userId) => this.handleUserConnected(userId));
         socket.on('user left', (userId) => this.handleUserLeft(userId));
         socket.on('disconnect', () => this.handleRoomClosed());
     }
@@ -63,6 +65,24 @@ class MasterView extends React.Component {
                 message: <span><b>{users[i].username}</b>: ¡Es hora de un descanso!</span>
             });
         }
+    }
+
+    handleUserDisconnected(userId) {
+        var {users} = this.state;
+        var user = users.find((user) => user.id === userId);
+
+        user.connected = false;
+
+        this.setState({ users: [...users] });
+    }
+
+    handleUserConnected(userId) {
+        var {users} = this.state;
+        var user = users.find((user) => user.id === userId);
+
+        user.connected = true;
+
+        this.setState({ users: [...users] });
     }
 
     handleUserLeft(userId) {

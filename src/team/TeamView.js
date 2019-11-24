@@ -55,9 +55,9 @@ class TeamView extends React.Component {
     }
 
     handleReconnect() {
-        var {socket, user, session} = this.props;
+        var {socket, user} = this.props;
 
-        socket.emit('join room', session.id, user.username, (res) => {
+        socket.emit('rejoin room', user.id, (res) => {
             if (res.error) {
                 this.handleRoomClosed();
             }

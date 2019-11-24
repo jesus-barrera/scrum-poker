@@ -11,10 +11,10 @@ function User(props) {
     }
 
     return (
-        <tr className="user">
+        <tr className={"user " + (! props.connected ? 'offline' : '')}>
             <td className="user__id">{props.index + 1}</td>
             <td className="user__name">{props.username}</td>
-            <td className="user__card">{card}</td>
+            <td className="user__card">{(props.connected && card) || '[Desconectado]'}</td>
         </tr>
     );
 }

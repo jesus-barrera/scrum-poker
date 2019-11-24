@@ -5,7 +5,7 @@ function Notifications(props) {
     return (
         <div className="alert-container">
             {props.items.map((alert, index) =>
-                <Alert type={alert.type} key={index}>{alert.message}</Alert>
+                <Alert type={alert.type} key={alert.id || index}>{alert.message}</Alert>
             )}
         </div>
     );

@@ -1,3 +1,7 @@
+.user.offline {
+    color: #9b9b9b;
+}
+
 .user__name, .user_id {
     text-align: left;
 }

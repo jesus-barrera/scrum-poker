@@ -20,11 +20,11 @@ class App extends React.Component {
         this.socket = io(":8080");
     }
 
-    handleJoin(session, username) {
+    handleJoin(response) {
         this.setState({
             view: 'team',
-            session: session,
-            user: {username}
+            session: response.room,
+            user: response.user
         });
     }
 
