@@ -11,12 +11,12 @@ function Header(props) {
 
 function Page(props) {
     return (
-        <div>
+        <>
             {props.header}
             <main>
                 {props.children}
             </main>
-        </div>
+        </>
     )
 }
 

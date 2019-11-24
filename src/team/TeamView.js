@@ -2,21 +2,34 @@ import React from 'react';
 import {Header, Page} from '../common/layout';
 import Grid from './Grid';
 import Alert from '../common/Alert';
+import AppContext from '../common/AppContext';
 
 class TeamView extends React.Component {
-    constructor(props) {
-        super(props);
+    static contextType = AppContext;
+
+    constructor(props, context) {
+        super(props, context);
+
+        this.handleCardChange = this.handleCardChange.bind(this);
 
         this.state = {
             choice: null,
-            connected: true
+            connected: this.context.socket.connected
         };
-
-        this.handleCardChange = this.handleCardChange.bind(this);
     }
 
     componentDidMount() {
+        var {socket} = this.context;
+
         this.addListeners();
+
+        // Check if the socket should be opened manually, this means that the user
+        // entered directly to this page (due to a previous saved state) and
+        // must be re added to the room again.
+        if (socket.disconnected) {
+            socket.once('connect', () => this.handleReconnect());
+            socket.open();
+        }
     }
 
     componentWillUnmount() {
@@ -24,16 +37,16 @@ class TeamView extends React.Component {
     }
 
     addListeners() {
-        var {socket} = this.props;
+        var {socket, handleRoomClosed} = this.context;
 
         socket.on('disconnect', () => this.handleDisconnect());
         socket.on('start voting', () => this.handleStartVoting());
-        socket.on('room closed', () => this.handleRoomClosed());
+        socket.on('room closed', handleRoomClosed);
         socket.on('reconnect', () => this.handleReconnect());
     }
 
     removeListeners() {
-        var {socket} = this.props;
+        var {socket} = this.context;
 
         socket.off('disconnect');
         socket.off('start voting');
@@ -49,33 +62,28 @@ class TeamView extends React.Component {
         this.setState({choice: null});
     }
 
-    handleRoomClosed() {
-        alert('La sesión fue terminada.');
-        window.location.reload(false);
-    }
-
     handleReconnect() {
-        var {socket, user} = this.props;
+        var {socket, user, handleRoomClosed} = this.context;
 
         socket.emit('rejoin room', user.id, (res) => {
             if (res.error) {
-                this.handleRoomClosed();
+                handleRoomClosed();
+            } else {
+                socket.emit('card changed', this.state.choice);
             }
-
-            socket.emit('card changed', this.state.choice);
         });
 
         this.setState({connected: true});
     }
 
     handleCardChange(card) {
-        this.props.socket.emit('card changed', card);
+        this.context.socket.emit('card changed', card);
 
         this.setState({choice: card});
     }
 
     render() {
-        const {user} = this.props;
+        const {user} = this.context;
         const {connected, choice} = this.state;
 
         return (

@@ -2,11 +2,14 @@ import React from 'react';
 import {Page, Header} from '../common/layout';
 import UsersList from './UsersList';
 import Results from './Results';
+import AppContext from '../common/AppContext';
 import './MasterView.css';
 import calcResults from './calcResults';
 import withNotifications from '../common/withNotifications';
 
 class MasterView extends React.Component {
+    static contextType = AppContext;
+
     constructor(props) {
         super(props);
         this.handleStartVoting = this.handleStartVoting.bind(this);
@@ -28,21 +31,23 @@ class MasterView extends React.Component {
     }
 
     addListeners() {
-        var {socket} = this.props;
+        var {socket, handleRoomClosed} = this.context;
 
         socket.on('user joined', (user) => this.handleUserJoined(user));
         socket.on('card changed', (userId, card) => this.handleCardChanged(userId, card));
         socket.on('user disconnected', (userId) => this.handleUserDisconnected(userId));
         socket.on('user connected', (userId) => this.handleUserConnected(userId));
         socket.on('user left', (userId) => this.handleUserLeft(userId));
-        socket.on('disconnect', () => this.handleRoomClosed());
+        socket.on('disconnect', handleRoomClosed);
     }
 
     removeListeners() {
-        var {socket} = this.props;
+        var {socket} = this.context;
 
         socket.off('user joined');
         socket.off('card changed');
+        socket.off('user disconnected');
+        socket.off('user connected');
         socket.off('user left');
         socket.off('disconnect');
     }
@@ -94,11 +99,6 @@ class MasterView extends React.Component {
         this.setState({ users: [...users] });
     }
 
-    handleRoomClosed() {
-        alert('La sesión fue terminada.');
-        window.location.reload(false);
-    }
-
     handleStartVoting() {
         this.state.users.forEach((user) => user.card = null);
 
@@ -107,7 +107,7 @@ class MasterView extends React.Component {
             voting: true
         });
 
-        this.props.socket.emit('start voting');
+        this.context.socket.emit('start voting');
     }
 
     handleEndVoting() {
@@ -118,15 +118,16 @@ class MasterView extends React.Component {
     }
 
     render() {
-        const {session} = this.props;
+        console.log(this.context);
+        const {room} = this.context;
         const {users, voting, results} = this.state;
 
         return (
             <Page
-                header={<MasterViewHeader session={session} />}
+                header={<MasterViewHeader {...room} />}
             >
                 {voting && users.length === 0 ?
-                    <NoUsersMessage sessionId={session.id} /> :
+                    <NoUsersMessage sessionId={room.id} /> :
                     <Content
                         onStartVoting={this.handleStartVoting}
                         onEndVoting={this.handleEndVoting}
@@ -145,10 +146,10 @@ function MasterViewHeader(props) {
         <Header>
             <div className="session">
                 <span className="session__name">
-                    {props.session.name} |
+                    {props.name} |
                 </span>
                 <span className="session__id">
-                    <b> ID</b>: {props.session.id}
+                    <b> ID</b>: {props.id}
                 </span>
             </div>
         </Header>
