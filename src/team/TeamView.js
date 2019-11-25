@@ -65,9 +65,9 @@ class TeamView extends React.Component {
     }
 
     handleReconnect() {
-        var {socket, user, handleRoomClosed} = this.context;
+        var {socket, room, user, handleRoomClosed} = this.context;
 
-        socket.emit('rejoin room', user.id, (res) => {
+        socket.emit('join room', room.id, user.username, (res) => {
             if (res.error) {
                 handleRoomClosed();
             } else {
@@ -80,13 +80,11 @@ class TeamView extends React.Component {
 
     handleCardChange(card) {
         this.context.socket.emit('card changed', card);
-
         this.setState({choice: card});
     }
 
     logout(e) {
         e.preventDefault();
-
         this.context.socket.emit('leave room');
         this.context.clearState();
     }

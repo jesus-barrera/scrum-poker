@@ -22,16 +22,9 @@ class App extends React.Component {
 
     getInitialState() {
         return {
-            // Which view the user is in? 'master' or 'team', '' represents login.
-            view: '',
-
-            // Logged user, if any. The user is "anonymous" (null) when the room
-            // is created by him.
-            user: null,
-
-            // Room the user is logged in.
-            room: null,
-
+            view: '', // Which view the user is in? 'master' or 'team', '' represents login.
+            user: null, // Logged user, if any.
+            room: null, // Room the user is logged in.
             socket: socket,
             handleRoomClosed: this.handleRoomClosed,
             clearState: this.clearState
@@ -68,11 +61,11 @@ class App extends React.Component {
     saveState() {
         var {handleRoomClosed, socket, ...state} = this.state;
 
-        localStorage.setItem('state', JSON.stringify(state));
+        sessionStorage.setItem('state', JSON.stringify(state));
     }
 
     loadState() {
-        var stored = JSON.parse(localStorage.getItem('state'));
+        var stored = JSON.parse(sessionStorage.getItem('state'));
 
         return Object.assign({}, this.getInitialState(), stored);
     }

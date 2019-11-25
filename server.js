@@ -29,7 +29,7 @@ io.on('connection', function (socket) {
 
     socket.on('join room', function (roomId, username, ack) {
         try {
-            var user = createUser(socket, roomId, username);
+            var {user, isNew} = createUser(socket, roomId, username);
         } catch (e) {
             ack({ error: e });
             return;
@@ -37,10 +37,19 @@ io.on('connection', function (socket) {
 
         setupJoiningSocket(socket, user, rooms[roomId], ack);
 
-        socket.to(roomId).emit('user joined', user);
+        if (isNew) {
+            socket.to(roomId).emit('user joined', user);
+        } else {
+            socket.to(roomId).emit('user connected', user.id);
+        }
     });
 
+    // This event was created so that sockets could rejoin a room when
+    // disconnected, but now they can simply emit 'join room' again. It's not
+    // removed since it may be useful for identifying rejoining users by id
+    // and not username.
     socket.on('rejoin room', function (userId, ack) {
+        return;
         var user = users[userId];
         var room = user && rooms[user.roomId];
 
@@ -51,9 +60,8 @@ io.on('connection', function (socket) {
 
         setupJoiningSocket(socket, user, room, ack);
 
-        if (++user.connected == 1) {
-            socket.to(room.id).emit('user connected', user.id);
-        }
+        user.connected = true;
+        socket.to(room.id).emit('user connected', user.id);
     });
 });
 
@@ -72,19 +80,37 @@ function createUser(socket, roomId, username) {
         throw 'room not found';
     }
 
-    if (_.find(users, user => user.roomId == roomId && user.username == username)) {
-        throw 'username taken';
+    // Check if the username already exists. If it exists and the user is not
+    // connected, allow the socket to connect as that user. This will allow anyone
+    // to "steal" the identity of the original user by simply using his username,
+    // but it will also allow the user to rejoin in case the connection was
+    // lost from the client. This is in fact more convinient since there are not
+    // serious implications. If the user exists and is also connected, the current
+    // request is rejected. In any other case, the user is just created.
+
+    var user = _.find(users, user => user.roomId == roomId && user.username == username);
+
+    if (user) {
+        if (user.connected) {
+            throw 'user already exists';
+        }
+
+        user.connected = true;
+
+        return { user: user, isNew: false };
     }
 
-    var user = {
+    user = {
         id: socket.id,
         username: username,
-        connected: 1,
+        connected: true,
         card: null,
         roomId: roomId
     };
 
-    return users[user.id] = user;
+    users[user.id] = user;
+
+    return { user: user, isNew: true };
 }
 
 function setupCreatorSocket(socket, room, ack) {
@@ -110,9 +136,8 @@ function setupJoiningSocket(socket, user, room, ack) {
     });
 
     socket.on('disconnect', function (reason) {
-        if (--user.connected == 0) {
-            socket.to(room.id).emit('user disconnected', user.id);
-        }
+        user.connected = false;
+        socket.to(room.id).emit('user disconnected', user.id);
     });
 
     socket.on('leave room', function () {
