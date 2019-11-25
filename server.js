@@ -115,6 +115,17 @@ function setupJoiningSocket(socket, user, room, ack) {
         }
     });
 
+    socket.on('leave room', function () {
+        socket.removeAllListeners('card changed');
+        socket.removeAllListeners('leave room');
+        socket.removeAllListeners('disconnect');
+
+        socket.to(room.id).emit('user left', user.id);
+        socket.leave(room.id);
+
+        delete users[user.id];
+    });
+
     var res = {
         room: {id: room.id, name: room.name},
         user: {id: user.id, username: user.username}

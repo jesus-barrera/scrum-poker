@@ -15,6 +15,7 @@ class App extends React.Component {
         this.handleCreate = this.handleCreate.bind(this);
         this.handleRoomClosed = this.handleRoomClosed.bind(this);
         this.saveState = this.saveState.bind(this);
+        this.clearState = this.clearState.bind(this);
 
         this.state = this.loadState();
     }
@@ -31,8 +32,9 @@ class App extends React.Component {
             // Room the user is logged in.
             room: null,
 
+            socket: socket,
             handleRoomClosed: this.handleRoomClosed,
-            socket: socket
+            clearState: this.clearState
         };
     }
 
@@ -47,7 +49,8 @@ class App extends React.Component {
 
     handleRoomClosed() {
         alert('La sesión fue terminada.');
-        this.setState(this.getInitialState(), this.saveState);
+
+        this.clearState();
     }
 
     handleJoin(response) {
@@ -56,6 +59,10 @@ class App extends React.Component {
 
     handleCreate(room) {
         this.setState({view: 'master', room});
+    }
+
+    clearState() {
+        this.setState(this.getInitialState(), this.saveState);
     }
 
     saveState() {

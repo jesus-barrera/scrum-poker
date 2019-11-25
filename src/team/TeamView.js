@@ -11,6 +11,7 @@ class TeamView extends React.Component {
         super(props, context);
 
         this.handleCardChange = this.handleCardChange.bind(this);
+        this.logout = this.logout.bind(this);
 
         this.state = {
             choice: null,
@@ -25,7 +26,7 @@ class TeamView extends React.Component {
 
         // Check if the socket should be opened manually, this means that the user
         // entered directly to this page (due to a previous saved state) and
-        // must be re added to the room again.
+        // must be re added to the room.
         if (socket.disconnected) {
             socket.once('connect', () => this.handleReconnect());
             socket.open();
@@ -82,6 +83,13 @@ class TeamView extends React.Component {
         this.setState({choice: card});
     }
 
+    logout(e) {
+        e.preventDefault();
+
+        this.context.socket.emit('leave room');
+        this.context.clearState();
+    }
+
     render() {
         const {user} = this.context;
         const {connected, choice} = this.state;
@@ -91,6 +99,7 @@ class TeamView extends React.Component {
                 header={
                     <Header>
                         <div>{user.username}</div>
+                        <button onClick={this.logout} type="button">Salir</button>
                     </Header>
                 }
             >
