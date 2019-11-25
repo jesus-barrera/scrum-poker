@@ -24,16 +24,43 @@ header {
     align-items: center;
 }
 
-@media(max-width: 800px) {
-    header .session__name {
-        display: none;
-    }
-}
-
 header h1 {
     text-align: center;
     margin: 0;
     font-size: 20px;
+    white-space: nowrap;
+}
+
+header .header__item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    white-space: nowrap;
+    overflow: hidden;
+    margin-left: 10px;
+}
+
+header .header__username {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+header .header__logout {
+    height: 20px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+@media(max-width: 800px) {
+    header .session__name {
+        display: none;
+    }
+
+    header h1 {
+        font-size: 18px;
+    }
 }
 
 main {

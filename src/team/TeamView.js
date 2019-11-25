@@ -3,6 +3,7 @@ import {Header, Page} from '../common/layout';
 import Grid from './Grid';
 import Alert from '../common/Alert';
 import AppContext from '../common/AppContext';
+import logoutIcon from '../assets/cerrar-sesion.svg';
 
 class TeamView extends React.Component {
     static contextType = AppContext;
@@ -97,10 +98,10 @@ class TeamView extends React.Component {
         return (
             <Page
                 header={
-                    <Header>
-                        <div>{user.username}</div>
-                        <button onClick={this.logout} type="button">Salir</button>
-                    </Header>
+                    <TeamViewHeader
+                        user={user}
+                        onLogout={this.logout}
+                    />
                 }
             >
                 {! connected && (
@@ -115,6 +116,22 @@ class TeamView extends React.Component {
             </Page>
         );
     }
+}
+
+function TeamViewHeader(props) {
+    return (
+        <Header>
+            <div className="header__item">
+                <span className="header__username">{props.user.username}</span>
+                <img
+                    className="header__logout"
+                    src={logoutIcon}
+                    onClick={props.onLogout}
+                    alt="logout"
+                />
+            </div>
+        </Header>
+    );
 }
 
 export default TeamView;

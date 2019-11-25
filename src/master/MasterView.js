@@ -118,7 +118,6 @@ class MasterView extends React.Component {
     }
 
     render() {
-        console.log(this.context);
         const {room} = this.context;
         const {users, voting, results} = this.state;
 
