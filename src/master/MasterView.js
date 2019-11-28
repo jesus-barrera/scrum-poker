@@ -115,6 +115,8 @@ class MasterView extends React.Component {
             results: calcResults(this.state.users),
             voting: false
         });
+
+        this.context.socket.emit('end voting');
     }
 
     render() {

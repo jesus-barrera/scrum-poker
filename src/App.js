@@ -61,11 +61,11 @@ class App extends React.Component {
     saveState() {
         var {handleRoomClosed, socket, ...state} = this.state;
 
-        sessionStorage.setItem('state', JSON.stringify(state));
+        localStorage.setItem('state', JSON.stringify(state));
     }
 
     loadState() {
-        var stored = JSON.parse(sessionStorage.getItem('state'));
+        var stored = JSON.parse(localStorage.getItem('state'));
 
         return Object.assign({}, this.getInitialState(), stored);
     }

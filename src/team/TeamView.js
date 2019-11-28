@@ -16,7 +16,8 @@ class TeamView extends React.Component {
 
         this.state = {
             choice: null,
-            connected: this.context.socket.connected
+            connected: this.context.socket.connected,
+            voting: this.context.room.voting
         };
     }
 
@@ -43,6 +44,7 @@ class TeamView extends React.Component {
 
         socket.on('disconnect', () => this.handleDisconnect());
         socket.on('start voting', () => this.handleStartVoting());
+        socket.on('end voting', () => this.handleEndVoting());
         socket.on('room closed', handleRoomClosed);
         socket.on('reconnect', () => this.handleReconnect());
     }
@@ -52,6 +54,7 @@ class TeamView extends React.Component {
 
         socket.off('disconnect');
         socket.off('start voting');
+        socket.off('end voting');
         socket.off('room closed');
         socket.off('reconnect');
     }
@@ -61,7 +64,11 @@ class TeamView extends React.Component {
     }
 
     handleStartVoting() {
-        this.setState({choice: null});
+        this.setState({choice: null, voting: true});
+    }
+
+    handleEndVoting() {
+        this.setState({voting: false});
     }
 
     handleReconnect() {
@@ -72,10 +79,10 @@ class TeamView extends React.Component {
                 handleRoomClosed();
             } else {
                 socket.emit('card changed', this.state.choice);
+
+                this.setState({connected: true, voting: res.room.voting});
             }
         });
-
-        this.setState({connected: true});
     }
 
     handleCardChange(card) {
@@ -91,7 +98,10 @@ class TeamView extends React.Component {
 
     render() {
         const {user} = this.context;
-        const {connected, choice} = this.state;
+        const {connected, choice, voting} = this.state;
+
+        var notice = (! connected && <Alert type="error">Sin conexion!</Alert>)
+            || (! voting && <Alert type="info">Votación cerrada! Escucha las indicaciones...</Alert>);
 
         return (
             <Page
@@ -102,11 +112,10 @@ class TeamView extends React.Component {
                     />
                 }
             >
-                {! connected && (
-                    <div className="alert-container">
-                        <Alert type="error">Sin conexión!</Alert>
-                    </div>
-                )}
+                <div className="alert-container">
+                    {notice}
+                </div>
+
                 <Grid
                     onCardChange={this.handleCardChange}
                     choice={choice}

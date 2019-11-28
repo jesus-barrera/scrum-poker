@@ -69,6 +69,7 @@ function createRoom(socket, name) {
     var room = {
         id: ++roomId,
         name: name,
+        voting: true,
         owner: socket.id
     };
 
@@ -117,14 +118,20 @@ function setupCreatorSocket(socket, room, ack) {
     socket.join(room.id);
 
     socket.on('start voting', function () {
+        room.voting = true;
         socket.to(room.id).emit('start voting');
+    });
+
+    socket.on('end voting', function () {
+        room.voting = false;
+        socket.to(room.id).emit('end voting');
     });
 
     socket.on('disconnect', function () {
         closeRoom(room);
     });
 
-    ack({name: room.name, id: room.id});
+    ack({name: room.name, id: room.id, voting: room.voting});
 }
 
 function setupJoiningSocket(socket, user, room, ack) {
@@ -152,7 +159,7 @@ function setupJoiningSocket(socket, user, room, ack) {
     });
 
     var res = {
-        room: {id: room.id, name: room.name},
+        room: {id: room.id, name: room.name, voting: room.voting},
         user: {id: user.id, username: user.username}
     };
 
