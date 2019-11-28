@@ -21,6 +21,10 @@ function getEmptyResults() {
 function countVote(results, participant, i) {
     var card = participant.card;
 
+    if (! participant.connected) {
+        return results;
+    }
+
     if (card) {
         let {cards, mode} = results;
 

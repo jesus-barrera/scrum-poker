@@ -67,7 +67,7 @@ class MasterView extends React.Component {
         if (card === 'Bk') {
             this.props.notify({
                 type: "info",
-                message: <span><b>{users[i].username}</b>: ¡Es hora de un descanso!</span>
+                message: <span>¡<b>{users[i].username}</b> sugiere un descanso!</span>
             });
         }
     }
@@ -93,6 +93,11 @@ class MasterView extends React.Component {
     handleUserLeft(userId) {
         var {users} = this.state;
         var i = users.findIndex((user) => user.id === userId);
+
+        this.props.notify({
+            type: "info",
+            message: <span>¡<b>{users[i].username}</b> abandonó de la sesión!</span>
+        });
 
         users.splice(i, 1);
 
