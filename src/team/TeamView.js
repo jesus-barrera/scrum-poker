@@ -101,7 +101,7 @@ class TeamView extends React.Component {
         const {connected, choice, voting} = this.state;
 
         var notice = (! connected && <Alert type="error">Sin conexion!</Alert>)
-            || (! voting && <Alert type="info">Votación cerrada! Escucha las indicaciones...</Alert>);
+            || (! voting && <Alert type="info">Votación cerrada! Espera las indicaciones...</Alert>);
 
         return (
             <Page

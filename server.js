@@ -1,7 +1,17 @@
-var app = require('express')();
+var path = require('path');
+var express = require('express');
+var app = express();
+
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var _ = require('./util');
+
+// Serve React App
+app.use(express.static(path.join(__dirname, 'build')));
+
+app.get('/', function(req, res) {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
 // Scrum Poker! WebSocket server.
 //
