@@ -1,9 +1,9 @@
 import React from 'react';
 import io from 'socket.io-client';
 import Login from './login/Login';
-import TeamView from './team/TeamView';
-import MasterView from './master/MasterView';
 import AppContext from './common/AppContext';
+import { TeamPlanningView } from './team';
+import { MasterPlanningView } from './master';
 
 var socket = io(":8080", { autoConnect: false });
 
@@ -77,10 +77,10 @@ class App extends React.Component {
             <AppContext.Provider value={this.state}>
                 {
                     (view === 'master' && (
-                        <MasterView />
+                        <MasterPlanningView />
                     )) ||
                     (view === 'team' && (
-                        <TeamView />
+                        <TeamPlanningView />
                     )) || (
                         <Login
                             socket={this.state.socket}

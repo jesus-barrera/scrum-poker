@@ -56,7 +56,7 @@ class JoinForm extends React.Component {
                 </fieldset>
                 <button>Entrar</button>
             </form>
-        )
+        );
     }
 }
 

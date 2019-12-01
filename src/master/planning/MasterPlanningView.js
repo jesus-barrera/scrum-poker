@@ -1,13 +1,14 @@
 import React from 'react';
-import {Page, Header} from '../common/layout';
-import UsersList from './UsersList';
+import AppContext from '../../common/AppContext';
+import withNotifications from '../../common/withNotifications';
+import UsersList from '../UsersList';
+import MasterPage from '../MasterPage';
+import NoUsersMessage from '../NoUsersMessage';
 import Results from './Results';
-import AppContext from '../common/AppContext';
-import './MasterView.css';
 import calcResults from './calcResults';
-import withNotifications from '../common/withNotifications';
+import './MasterPlanningView.css';
 
-class MasterView extends React.Component {
+class MasterPlanningView extends React.Component {
     static contextType = AppContext;
 
     constructor(props) {
@@ -130,9 +131,7 @@ class MasterView extends React.Component {
         const {users, voting, results} = this.state;
 
         return (
-            <Page
-                header={<MasterViewHeader {...room} />}
-            >
+            <MasterPage>
                 {voting && users.length === 0 ?
                     <NoUsersMessage sessionId={room.id} /> :
                     <Content
@@ -143,34 +142,9 @@ class MasterView extends React.Component {
                         users={users}
                     />
                 }
-            </Page>
+            </MasterPage>
         );
     }
-}
-
-function MasterViewHeader(props) {
-    return (
-        <Header>
-            <div className="session">
-                <span className="session__name">
-                    {props.name} |
-                </span>
-                <span className="session__id">
-                    <b> ID</b>: {props.id}
-                </span>
-            </div>
-        </Header>
-    );
-}
-
-function NoUsersMessage(props) {
-    return (
-        <div className="no-users">
-            <h3>¿Dónde están todos?</h3>
-            <p>Esperando a que los miembros del equipo se unan.</p>
-            <p>Usa el ID de la sesión <b>{props.sessionId}</b> para unirte a la sala.</p>
-        </div>
-    );
 }
 
 function Content(props) {
@@ -213,7 +187,7 @@ function ResultsPanel(props) {
                 <button onClick={props.onStartVoting}>Nueva Votación</button>
             </div>
         </>
-    )
+    );
 }
 
-export default withNotifications(MasterView);
+export default withNotifications(MasterPlanningView);

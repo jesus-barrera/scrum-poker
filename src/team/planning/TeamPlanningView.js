@@ -1,11 +1,10 @@
 import React from 'react';
-import {Header, Page} from '../common/layout';
+import Alert from '../../common/Alert';
+import AppContext from '../../common/AppContext';
+import TeamPage from '../TeamPage';
 import Grid from './Grid';
-import Alert from '../common/Alert';
-import AppContext from '../common/AppContext';
-import logoutIcon from '../assets/cerrar-sesion.svg';
 
-class TeamView extends React.Component {
+class TeamPlanningView extends React.Component {
     static contextType = AppContext;
 
     constructor(props, context) {
@@ -83,7 +82,6 @@ class TeamView extends React.Component {
                 handleRoomClosed();
             } else {
                 socket.emit('card changed', this.state.choice);
-
                 this.setState({connected: true, voting: res.room.voting});
             }
         });
@@ -103,21 +101,13 @@ class TeamView extends React.Component {
     }
 
     render() {
-        const {user} = this.context;
         const {connected, choice, voting} = this.state;
 
         var notice = (! connected && <Alert type="error">Sin conexion!</Alert>)
-            || (! voting && <Alert type="info">Votación cerrada! Espera las indicaciones...</Alert>);
+            || (! voting && <Alert type="info">Votación cerrada!</Alert>);
 
         return (
-            <Page
-                header={
-                    <TeamViewHeader
-                        user={user}
-                        onLogout={this.logout}
-                    />
-                }
-            >
+            <TeamPage onLogout={this.logout}>
                 <div className="alert-container">
                     {notice}
                 </div>
@@ -126,25 +116,9 @@ class TeamView extends React.Component {
                     onCardChange={this.handleCardChange}
                     choice={choice}
                 />
-            </Page>
+            </TeamPage>
         );
     }
 }
 
-function TeamViewHeader(props) {
-    return (
-        <Header>
-            <div className="header__item">
-                <span className="header__username">{props.user.username}</span>
-                <img
-                    className="header__logout"
-                    src={logoutIcon}
-                    onClick={props.onLogout}
-                    alt="logout"
-                />
-            </div>
-        </Header>
-    );
-}
-
-export default TeamView;
+export default TeamPlanningView;

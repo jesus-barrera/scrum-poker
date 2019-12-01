@@ -48,7 +48,7 @@ class CreateForm extends React.Component {
 
                 <button>Crear</button>
             </form>
-        )
+        );
     }
 }
 
