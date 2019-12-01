@@ -30,8 +30,17 @@ function each(obj, callback) {
     return obj;
 }
 
+function pick(obj, keys) {
+    return keys.reduce(function (picked, key) {
+        picked[key] = obj[key];
+
+        return picked;
+    }, {});
+}
+
 module.exports = {
     filter,
     find,
+    pick,
     each
 };

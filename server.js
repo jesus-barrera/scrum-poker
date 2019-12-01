@@ -34,97 +34,37 @@ io.on('connection', function (socket) {
     socket.on('create room', function (name, ack) {
         var room = createRoom(socket, name);
 
-        setupCreatorSocket(socket, room, ack);
+        setupCreatorSocket(socket, room);
+
+        ack( _.pick(room, ['id', 'name']) );
     });
 
     socket.on('join room', function (roomId, username, ack) {
         try {
-            var {user, isNew} = createUser(socket, roomId, username);
-        } catch (e) {
-            ack({ error: e });
+            var {user, isNew} = findOrCreate(socket, roomId, username);
+        } catch (error) {
+            ack({ error });
             return;
         }
 
-        setupJoiningSocket(socket, user, rooms[roomId], ack);
+        var room = rooms[roomId];
+
+        setupJoiningSocket(socket, user, room);
 
         if (isNew) {
-            socket.to(roomId).emit('user joined', user);
+            socket.to(roomId).emit('user joined', mapUser(user));
         } else {
-            socket.to(roomId).emit('user connected', user.id);
-        }
-    });
-
-    // This event was created so that sockets could rejoin a room when
-    // disconnected, but now they can simply emit 'join room' again. It's not
-    // removed since it may be useful for identifying rejoining users by id
-    // and not username.
-    socket.on('rejoin room', function (userId, ack) {
-        return;
-        var user = users[userId];
-        var room = user && rooms[user.roomId];
-
-        if (! user) {
-            ack({error: 'user not found'});
-            return;
+            reassignSocket(user, socket);
         }
 
-        setupJoiningSocket(socket, user, room, ack);
-
-        user.connected = true;
-        socket.to(room.id).emit('user connected', user.id);
+        ack({
+            room: _.pick(room, ['id', 'name', 'voting']),
+            user: _.pick(user, ['id', 'username'])
+        });
     });
 });
 
-function createRoom(socket, name) {
-    var room = {
-        id: ++roomId,
-        name: name,
-        voting: true,
-        owner: socket.id
-    };
-
-    return rooms[room.id] = room;
-}
-
-function createUser(socket, roomId, username) {
-    if (! rooms[roomId]) {
-        throw 'room not found';
-    }
-
-    // Check if the username already exists. If it exists and the user is not
-    // connected, allow the socket to connect as that user. This will allow anyone
-    // to "steal" the identity of the original user by simply using his username,
-    // but it will also allow the user to rejoin in case the connection was
-    // lost from the client. This is in fact more convinient since there are not
-    // serious implications. If the user exists and is also connected, the current
-    // request is rejected. In any other case, the user is just created.
-
-    var user = _.find(users, user => user.roomId == roomId && user.username == username);
-
-    if (user) {
-        if (user.connected) {
-            throw 'user already exists';
-        }
-
-        user.connected = true;
-
-        return { user: user, isNew: false };
-    }
-
-    user = {
-        id: socket.id,
-        username: username,
-        connected: true,
-        card: null,
-        roomId: roomId
-    };
-
-    users[user.id] = user;
-
-    return { user: user, isNew: true };
-}
-
-function setupCreatorSocket(socket, room, ack) {
+function setupCreatorSocket(socket, room) {
     socket.join(room.id);
 
     socket.on('start voting', function () {
@@ -140,11 +80,9 @@ function setupCreatorSocket(socket, room, ack) {
     socket.on('disconnect', function () {
         closeRoom(room);
     });
-
-    ack({name: room.name, id: room.id, voting: room.voting});
 }
 
-function setupJoiningSocket(socket, user, room, ack) {
+function setupJoiningSocket(socket, user, room) {
     socket.join(room.id);
 
     socket.on('card changed', function (card) {
@@ -153,11 +91,13 @@ function setupJoiningSocket(socket, user, room, ack) {
     });
 
     socket.on('disconnect', function (reason) {
-        user.connected = false;
-        socket.to(room.id).emit('user disconnected', user.id);
+        if (socket.id == user.socket) {
+            user.socket = null;
+            socket.to(room.id).emit('user disconnected', user.id);
+        }
     });
 
-    socket.on('leave room', function () {
+    socket.on('leave room', function (ack) {
         socket.removeAllListeners('card changed');
         socket.removeAllListeners('leave room');
         socket.removeAllListeners('disconnect');
@@ -166,14 +106,20 @@ function setupJoiningSocket(socket, user, room, ack) {
         socket.leave(room.id);
 
         delete users[user.id];
-    });
 
-    var res = {
-        room: {id: room.id, name: room.name, voting: room.voting},
-        user: {id: user.id, username: user.username}
+        ack();
+    });
+}
+
+function createRoom(socket, name) {
+    var room = {
+        id: ++roomId,
+        name: name,
+        voting: true,
+        owner: socket.id
     };
 
-    ack(res);
+    return rooms[room.id] = room;
 }
 
 function closeRoom(room) {
@@ -182,6 +128,59 @@ function closeRoom(room) {
     delete rooms[room.id];
 
     io.to(room.id).emit('room closed');
+}
+
+function findOrCreate(socket, roomId, username) {
+    if (! rooms[roomId]) {
+        throw 'room not found';
+    }
+
+    var user = _.find(users, user => user.roomId == roomId && user.username == username);
+
+    if (user) {
+        if (socket.handshake.query.userId == user.id) {
+            return { user: user, isNew: false };
+        }
+
+        throw 'user already exists';
+    }
+
+    user = createUser(socket, roomId, username);
+
+    return { user: user, isNew: true };
+}
+
+function createUser(socket, roomId, username) {
+    var user = {
+        id: socket.id,
+        username: username,
+        card: null,
+        socket: socket.id,
+        roomId: roomId
+    };
+
+    return users[user.id] = user;
+}
+
+function reassignSocket(user, socket) {
+    var prev = user.socket;
+
+    user.socket = socket.id;
+
+    if (prev) {
+        io.sockets.connected[prev].disconnect(true);
+    } else {
+        socket.to(user.roomId).emit('user connected', user.id);
+    }
+}
+
+function mapUser(user) {
+    return {
+        id: user.id,
+        card: user.card,
+        username: user.username,
+        connected: Boolean(user.socket)
+    };
 }
 
 http.listen(8080, function () {

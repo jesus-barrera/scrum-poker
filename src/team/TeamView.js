@@ -40,13 +40,15 @@ class TeamView extends React.Component {
     }
 
     addListeners() {
-        var {socket, handleRoomClosed} = this.context;
+        var {socket, handleRoomClosed, user} = this.context;
 
         socket.on('disconnect', () => this.handleDisconnect());
         socket.on('start voting', () => this.handleStartVoting());
         socket.on('end voting', () => this.handleEndVoting());
         socket.on('room closed', handleRoomClosed);
         socket.on('reconnect', () => this.handleReconnect());
+
+        socket.io.opts.query = { userId: user.id };
     }
 
     removeListeners() {
@@ -57,6 +59,8 @@ class TeamView extends React.Component {
         socket.off('end voting');
         socket.off('room closed');
         socket.off('reconnect');
+
+        socket.io.opts.query = {};
     }
 
     handleDisconnect() {
@@ -92,8 +96,10 @@ class TeamView extends React.Component {
 
     logout(e) {
         e.preventDefault();
-        this.context.socket.emit('leave room');
-        this.context.clearState();
+
+        this.context.socket.emit('leave room', () => {
+            this.context.clearState();
+        });
     }
 
     render() {

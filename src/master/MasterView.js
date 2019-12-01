@@ -77,6 +77,7 @@ class MasterView extends React.Component {
         var user = users.find((user) => user.id === userId);
 
         user.connected = false;
+        user.card = null;
 
         this.setState({ users: [...users] });
     }
