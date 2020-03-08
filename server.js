@@ -36,7 +36,7 @@ io.on('connection', function (socket) {
 
         setupCreatorSocket(socket, room);
 
-        ack( _.pick(room, ['id', 'name']) );
+        ack(_.pick(room, ['id', 'name', 'voting']));
     });
 
     socket.on('join room', function (roomId, username, ack) {
