@@ -1,97 +1,43 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import io from 'socket.io-client';
 import Login from './login/Login';
-import AppContext from './common/AppContext';
+import { RoleTypes } from './redux/ducks/role';
 import { TeamPlanningView } from './team';
 import { MasterPlanningView } from './master';
 
 var socket = io(":8080", { autoConnect: false });
 
 class App extends React.Component {
-    constructor(props) {
-        super(props);
+  componentDidMount() {
+    // When the user is logged in (has joined a room), socket is left unopened
+    // so the view knows it has to perform a reconnection. If not, the socket
+    // is open from here so it can be used for login purposes.
+    if (this.props.role === '') {
+      socket.open();
+    }
+  }
 
-        this.handleJoin = this.handleJoin.bind(this);
-        this.handleCreate = this.handleCreate.bind(this);
-        this.handleRoomClosed = this.handleRoomClosed.bind(this);
-        this.saveState = this.saveState.bind(this);
-        this.clearState = this.clearState.bind(this);
+  render() {
+    const { role } = this.props;
+    let View;
 
-        this.state = this.loadState();
+    if (role === '') {
+      View = Login;
+    } else if (role === RoleTypes.MASTER) {
+      View = MasterPlanningView;
+    } else if (role === RoleTypes.TEAM) {
+      View = TeamPlanningView;
     }
 
-    getInitialState() {
-        return {
-            view: '', // Which view the user is in? 'master' or 'team', '' represents login.
-            user: null, // Logged user, if any.
-            room: null, // Room the user is logged in.
-            socket: socket,
-            handleRoomClosed: this.handleRoomClosed,
-            clearState: this.clearState
-        };
-    }
-
-    componentDidMount() {
-        // When the user is logged in (has joined a room), socket is left unopened
-        // so the view knows it has to perform a reconnection. If not, the socket
-        // is open from here so it can be used for login purposes.
-        if (this.state.view === '') {
-            socket.open();
-        }
-    }
-
-    handleRoomClosed() {
-        alert('La sesión fue terminada.');
-
-        this.clearState();
-    }
-
-    handleJoin(response) {
-        this.setState({view: 'team', ...response}, this.saveState);
-    }
-
-    handleCreate(room) {
-        this.setState({view: 'master', room});
-    }
-
-    clearState() {
-        this.setState(this.getInitialState(), this.saveState);
-    }
-
-    saveState() {
-        var {handleRoomClosed, socket, ...state} = this.state;
-
-        localStorage.setItem('state', JSON.stringify(state));
-    }
-
-    loadState() {
-        var stored = JSON.parse(localStorage.getItem('state'));
-
-        return Object.assign({}, this.getInitialState(), stored);
-    }
-
-    render() {
-        var {view} = this.state;
-
-        return (
-            <AppContext.Provider value={this.state}>
-                {
-                    (view === 'master' && (
-                        <MasterPlanningView />
-                    )) ||
-                    (view === 'team' && (
-                        <TeamPlanningView />
-                    )) || (
-                        <Login
-                            socket={this.state.socket}
-                            onJoin={this.handleJoin}
-                            onCreate={this.handleCreate}
-                        />
-                    )
-                }
-            </AppContext.Provider>
-        );
-    }
+    return <View socket={socket} />
+  }
 }
 
-export default App;
+function mapStateToProps(state) {
+  return {
+    role: state.role
+  };
+}
+
+export default connect(mapStateToProps)(App);

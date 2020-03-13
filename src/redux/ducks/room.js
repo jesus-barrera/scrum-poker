@@ -1,8 +1,9 @@
 // Actions
 export const JOIN_ROOM = 'JOIN_ROOM';
 export const CREATE_ROOM = 'CREATE_ROOM';
-const START_VOTING = 'START_VOTING';
-const END_VOTING = 'END_VOTING';
+export const LEAVE_ROOM = 'LEAVE_ROOM';
+export const START_VOTING = 'START_VOTING';
+export const END_VOTING = 'END_VOTING';
 
 // Action creators
 export function joinRoom(room, user) {
@@ -17,8 +18,12 @@ export function startVoting() {
     return { type: START_VOTING };
 }
 
-export function endVoting() {
-  return { type: END_VOTING };
+export function endVoting(results) {
+  return { type: END_VOTING, results };
+}
+
+export function leaveRoom() {
+  return { type: LEAVE_ROOM };
 }
 
 // Reducer
@@ -32,6 +37,9 @@ export default function room(state = null, action) {
 
     case START_VOTING:
       return state && { ...state, voting: true };
+
+    case LEAVE_ROOM:
+      return null;
 
     default:
       return state;

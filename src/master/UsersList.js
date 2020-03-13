@@ -19,7 +19,7 @@ function User(props) {
     );
 }
 
-function UsersList(props) {
+function UsersList({ users, showResponse }) {
     return (
         <table className="users-list">
             <thead>
@@ -30,11 +30,11 @@ function UsersList(props) {
                 </tr>
             </thead>
             <tbody>
-                {props.users.map((user, index) =>
-                    <User {...user}
+                {Object.keys(users).map((id, index) =>
+                    <User {...users[id]}
                         index={index}
-                        showResponse={props.showResponse}
-                        key={user.id} />
+                        showResponse={showResponse}
+                        key={id} />
                 )}
             </tbody>
         </table>

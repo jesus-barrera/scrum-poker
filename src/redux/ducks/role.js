@@ -1,6 +1,6 @@
-import { CREATE_ROOM, JOIN_ROOM } from './room';
+import { CREATE_ROOM, JOIN_ROOM, LEAVE_ROOM } from './room';
 
-export const ModeTypes = {
+export const RoleTypes = {
   MASTER: 'MASTER',
   TEAM: 'TEAM',
 };
@@ -9,10 +9,13 @@ export const ModeTypes = {
 export default function reducer(state = '', action) {
   switch (action.type) {
     case CREATE_ROOM:
-      return ModeTypes.MASTER;
+      return RoleTypes.MASTER;
 
     case JOIN_ROOM:
-      return ModeTypes.TEAM;
+      return RoleTypes.TEAM;
+
+    case LEAVE_ROOM:
+      return '';
 
     default:
       return state;

@@ -1,34 +1,32 @@
 import React from 'react';
-import {Page, Header} from '../common/layout';
-import AppContext from '../common/AppContext';
+import { useSelector } from 'react-redux';
+import { Page, Header } from '../common/layout';
 
-function MasterViewHeader(props) {
-    return (
-        <AppContext.Consumer>
-            {context => (
-                <Header>
-                    <div className="session">
-                        <span className="session__name">
-                            {context.room.name} |
-                        </span>
-                        <span className="session__id">
-                            <b> ID</b>: {context.room.id}
-                        </span>
-                    </div>
-                </Header>
-            )}
-        </AppContext.Consumer>
-    );
+function MasterViewHeader() {
+  const { id, name } = useSelector((state) => state.room);
+
+  return (
+    <Header>
+      <div className="session">
+        <span className="session__name">
+          {name} |
+        </span>
+        <span className="session__id">
+          <b> ID</b>: {id}
+        </span>
+      </div>
+    </Header>
+  );
 }
 
-function MasterPage(props) {
-    return (
-        <Page
-            header={<MasterViewHeader/>}
-        >
-            {props.children}
-        </Page>
-    );
+function MasterPage({ children }) {
+  return (
+    <Page
+      header={<MasterViewHeader/>}
+    >
+      {children}
+    </Page>
+  );
 }
 
 export default React.memo(MasterPage);

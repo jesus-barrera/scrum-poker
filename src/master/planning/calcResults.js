@@ -1,7 +1,8 @@
 function calcResults(participants) {
     var results = getEmptyResults();
 
-    participants.reduce(countVote, results);
+    Object.keys(participants)
+      .forEach((id) => countVote(results, participants[id]));
 
     results.cards = orderCardsByFrequency(results.cards);
 
@@ -10,7 +11,7 @@ function calcResults(participants) {
 
 function getEmptyResults() {
     return {
-        users: [],
+        users: {},
         cards: [],
         max: undefined,
         min: undefined,
@@ -18,7 +19,7 @@ function getEmptyResults() {
     };
 }
 
-function countVote(results, participant, i) {
+function countVote(results, participant) {
     var card = participant.card;
 
     if (! participant.connected) {
@@ -33,7 +34,7 @@ function countVote(results, participant, i) {
         updateMinMax(results, card);
     }
 
-    results.users.push(Object.assign({}, participant));
+    results.users[participant.id] = Object.assign({}, participant);
 
     return results;
 }

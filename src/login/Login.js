@@ -1,7 +1,9 @@
 import React from 'react';
-import {Header, Page} from '../common/layout';
+import { connect } from 'react-redux';
+import { Header, Page } from '../common/layout';
 import JoinForm from './JoinForm';
 import CreateForm from './CreateForm';
+import { joinRoom, createRoom } from '../redux/ducks/room';
 
 class Login extends React.Component {
     constructor(props) {
@@ -12,8 +14,8 @@ class Login extends React.Component {
     }
 
     handleJoin(data) {
-        var {sessionId, username} = data;
-        var {socket, onJoin} = this.props;
+        var { sessionId, username } = data;
+        var { socket, onJoin } = this.props;
 
         if (socket.disconnected) {
             alert("No se pudo conectar al servidor.");
@@ -52,4 +54,15 @@ class Login extends React.Component {
     }
 }
 
-export default Login;
+function mapDispatchToProps(dispatch) {
+  return {
+    onJoin: ({ room, user }) => {
+      dispatch(joinRoom(room, user));
+    },
+    onCreate: (room) => {
+      dispatch(createRoom(room));
+    },
+  };
+}
+
+export default connect(null, mapDispatchToProps)(Login);
