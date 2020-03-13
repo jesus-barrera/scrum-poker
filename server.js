@@ -36,7 +36,7 @@ io.on('connection', function (socket) {
 
         setupCreatorSocket(socket, room);
 
-        ack(_.pick(room, ['id', 'name', 'voting']));
+        ack(_.pick(room, ['id', 'name', 'voting', 'count']));
     });
 
     socket.on('join room', function (roomId, username, ack) {
@@ -58,7 +58,7 @@ io.on('connection', function (socket) {
         }
 
         ack({
-            room: _.pick(room, ['id', 'name', 'voting']),
+            room: _.pick(room, ['id', 'name', 'voting', 'count']),
             user: _.pick(user, ['id', 'username'])
         });
     });
@@ -69,6 +69,7 @@ function setupCreatorSocket(socket, room) {
 
     socket.on('start voting', function () {
         room.voting = true;
+        room.count++;
         socket.to(room.id).emit('start voting');
     });
 
@@ -116,6 +117,7 @@ function createRoom(socket, name) {
         id: ++roomId,
         name: name,
         voting: true,
+        count: 1,
         owner: socket.id
     };
 

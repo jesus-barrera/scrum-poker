@@ -24,7 +24,14 @@ function TeamPlanningView({ socket }) {
         if (res.error) {
           dispatch(leaveRoom());
         } else {
-          socket.emit('card changed', choice);
+          // If the current poll hasn't change, update the selected card. If a
+          // new poll started, the card is cleared.
+          if (res.room.count === room.count) {
+            socket.emit('card changed', choice);
+          } else {
+            setChoice(null);
+          }
+
           setConnected(true);
           dispatch(joinRoom(res.room, res.user));
         }
@@ -65,9 +72,11 @@ function TeamPlanningView({ socket }) {
   }, [socket]);
 
   const handleCardChange = useCallback((card) => {
-    socket.emit('card changed', card);
-    setChoice(card);
-  }, [socket]);
+    if (socket.connected && room.voting) {
+      socket.emit('card changed', card);
+      setChoice(card);
+    }
+  }, [socket, room]);
 
   const logout = useCallback((e) => {
     e.preventDefault();

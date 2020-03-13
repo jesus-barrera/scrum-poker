@@ -36,7 +36,7 @@ export default function room(state = null, action) {
       return state && { ...state, voting: false };
 
     case START_VOTING:
-      return state && { ...state, voting: true };
+      return state && { ...state, voting: true, count: state.count + 1 };
 
     case LEAVE_ROOM:
       return null;
