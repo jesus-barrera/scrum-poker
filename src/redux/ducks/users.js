@@ -2,7 +2,7 @@ import { CREATE_ROOM, START_VOTING, LEAVE_ROOM } from './room';
 
 // Actions
 const ADD_USER = 'ADD_USER';
-const REMOVE_USER = 'ADD_USER';
+const REMOVE_USER = 'REMOVE_USER';
 const SET_USER_STATUS = 'SET_USER_STATUS';
 const SET_USER_CARD = 'SET_USER_CARD';
 

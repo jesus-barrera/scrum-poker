@@ -1,38 +1,36 @@
 import React from 'react';
-import {Header, Page} from '../common/layout';
-import AppContext from '../common/AppContext';
+import { useSelector } from 'react-redux';
+import { Header, Page } from '../common/layout';
 import logoutIcon from '../assets/cerrar-sesion.svg';
 
-function TeamViewHeader(props) {
-    return (
-        <AppContext.Consumer>
-            {context => (
-                <Header>
-                    <div className="header__item">
-                        <span className="header__username">{context.user.username}</span>
-                        <img
-                            className="header__logout"
-                            src={logoutIcon}
-                            onClick={props.onLogout}
-                            alt="logout"
-                        />
-                    </div>
-                </Header>
-            )}
-        </AppContext.Consumer>
-    );
+function TeamViewHeader({ onLogout }) {
+  const user = useSelector((state) => state.user);
+
+  return (
+    <Header>
+      <div className="header__item">
+        <span className="header__username">{user.username}</span>
+        <img
+          className="header__logout"
+          src={logoutIcon}
+          onClick={onLogout}
+          alt="logout"
+        />
+      </div>
+    </Header>
+  );
 }
 
-function TeamPage(props) {
-    return (
-        <Page
-            header={
-                <TeamViewHeader onLogout={props.onLogout} />
-            }
-        >
-            {props.children}
-        </Page>
-    );
+function TeamPage({ onLogout, children }) {
+  return (
+    <Page
+      header={
+        <TeamViewHeader onLogout={onLogout} />
+      }
+    >
+      {children}
+    </Page>
+  );
 }
 
 export default React.memo(TeamPage);

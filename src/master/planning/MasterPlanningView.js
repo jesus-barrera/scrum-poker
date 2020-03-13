@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import withNotifications from '../../common/withNotifications';
 import NoUsersMessage from '../NoUsersMessage';
@@ -26,9 +26,9 @@ function formatMsg(user, message) {
 }
 
 function MasterPlanningView({ socket, notify }) {
+  const [results, setResults] = useState();
   const users = useSelector(state => state.users);
   const room = useSelector(state => state.room);
-  const results = useSelector(state => state.results);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -36,14 +36,14 @@ function MasterPlanningView({ socket, notify }) {
 
     socket.on('card changed', (id, card) => {
       if (card === 'Bk') {
-        notify({ type: 'info', message: formatMsg(users[id], ' sugiere un descanso.')});
+        notify({ type: 'info', message: formatMsg(users[id], ' sugiere un descanso')});
       }
 
       dispatch(setUserCard(id, card));
     });
 
     socket.on('user left', (id) => {
-      notify({ type: 'info', message: formatMsg(users[id], ' abandonó la sesión.') });
+      notify({ type: 'info', message: formatMsg(users[id], ' abandonó la sesión') });
 
       dispatch(removeUser(id));
     });
@@ -73,12 +73,13 @@ function MasterPlanningView({ socket, notify }) {
   const handleEndVoting = useCallback(
     () => {
       socket.emit('end voting');
-      dispatch(endVoting(calcResults(users)));
+      dispatch(endVoting());
+      setResults(calcResults(users));
     },
     [dispatch, socket, users],
   );
 
-  if (room.voting && users.length === 0) {
+  if (room.voting && Object.keys(users).length === 0) {
     return <NoUsersMessage sessionId={room.id} />
   }
 

@@ -18,8 +18,8 @@ export function startVoting() {
     return { type: START_VOTING };
 }
 
-export function endVoting(results) {
-  return { type: END_VOTING, results };
+export function endVoting() {
+  return { type: END_VOTING };
 }
 
 export function leaveRoom() {

@@ -1,124 +1,97 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import Alert from '../../common/Alert';
-import AppContext from '../../common/AppContext';
 import TeamPage from '../TeamPage';
 import Grid from './Grid';
 
-class TeamPlanningView extends React.Component {
-    static contextType = AppContext;
+import {
+  startVoting,
+  endVoting,
+  leaveRoom,
+  joinRoom,
+} from '../../redux/ducks/room';
 
-    constructor(props, context) {
-        super(props, context);
+function TeamPlanningView({ socket }) {
+  const [choice, setChoice] = useState(null);
+  const [connected, setConnected] = useState(socket.connected);
+  const user = useSelector((state) => state.user);
+  const room = useSelector((state) => state.room);
+  const dispatch = useDispatch();
 
-        this.handleCardChange = this.handleCardChange.bind(this);
-        this.logout = this.logout.bind(this);
-
-        this.state = {
-            choice: null,
-            connected: this.context.socket.connected,
-            voting: this.context.room.voting
-        };
-    }
-
-    componentDidMount() {
-        var {socket} = this.context;
-
-        this.addListeners();
-
-        // Check if the socket should be opened manually, this means that the user
-        // entered directly to this page (due to a previous saved state) and
-        // must be re added to the room.
-        if (socket.disconnected) {
-            socket.once('connect', () => this.handleReconnect());
-            socket.open();
+  useEffect(() => {
+    function handleConnect() {
+      socket.emit('join room', room.id, user.username, (res) => {
+        if (res.error) {
+          dispatch(leaveRoom());
+        } else {
+          socket.emit('card changed', choice);
+          setConnected(true);
+          dispatch(joinRoom(res.room, res.user));
         }
+      });
     }
 
-    componentWillUnmount() {
-        this.removeListeners();
+    socket.on('disconnect', () => setConnected(false));
+
+    socket.on('start voting', () => {
+      setChoice(null);
+      dispatch(startVoting());
+    });
+
+    socket.on('end voting', () => dispatch(endVoting()));
+    socket.on('room closed', () => dispatch(leaveRoom()));
+    socket.on('connect', handleConnect);
+
+    socket.io.opts.query = { userId: user.id };
+
+    return () => {
+      socket.off('disconnect');
+      socket.off('start voting');
+      socket.off('end voting');
+      socket.off('room closed');
+      socket.off('connect');
+
+      socket.io.opts.query = {};
     }
+  }, [socket, dispatch, room, user, choice]);
 
-    addListeners() {
-        var {socket, handleRoomClosed, user} = this.context;
-
-        socket.on('disconnect', () => this.handleDisconnect());
-        socket.on('start voting', () => this.handleStartVoting());
-        socket.on('end voting', () => this.handleEndVoting());
-        socket.on('room closed', handleRoomClosed);
-        socket.on('reconnect', () => this.handleReconnect());
-
-        socket.io.opts.query = { userId: user.id };
+  useEffect(() => {
+    // Check if the socket should be opened manually, this means that the user
+    // entered directly to this page (due to a previous saved state) and
+    // must be re added to the room.
+    if (socket.disconnected) {
+      socket.open();
     }
+  }, [socket]);
 
-    removeListeners() {
-        var {socket} = this.context;
+  const handleCardChange = useCallback((card) => {
+    socket.emit('card changed', card);
+    setChoice(card);
+  }, [socket]);
 
-        socket.off('disconnect');
-        socket.off('start voting');
-        socket.off('end voting');
-        socket.off('room closed');
-        socket.off('reconnect');
+  const logout = useCallback((e) => {
+    e.preventDefault();
 
-        socket.io.opts.query = {};
-    }
+    socket.emit('leave room', () => {
+      dispatch(leaveRoom());
+    });
+  }, [socket, dispatch]);
 
-    handleDisconnect() {
-        this.setState({connected: false});
-    }
+  var notice = (! connected && <Alert type="error">Sin conexion!</Alert>)
+    || (! room.voting && <Alert type="info">Votación cerrada!</Alert>);
 
-    handleStartVoting() {
-        this.setState({choice: null, voting: true});
-    }
+  return (
+    <TeamPage onLogout={logout}>
+      <div className="alert-container">
+        {notice}
+      </div>
 
-    handleEndVoting() {
-        this.setState({voting: false});
-    }
-
-    handleReconnect() {
-        var {socket, room, user, handleRoomClosed} = this.context;
-
-        socket.emit('join room', room.id, user.username, (res) => {
-            if (res.error) {
-                handleRoomClosed();
-            } else {
-                socket.emit('card changed', this.state.choice);
-                this.setState({connected: true, voting: res.room.voting});
-            }
-        });
-    }
-
-    handleCardChange(card) {
-        this.context.socket.emit('card changed', card);
-        this.setState({choice: card});
-    }
-
-    logout(e) {
-        e.preventDefault();
-
-        this.context.socket.emit('leave room', () => {
-            this.context.clearState();
-        });
-    }
-
-    render() {
-        const {connected, choice, voting} = this.state;
-
-        var notice = (! connected && <Alert type="error">Sin conexion!</Alert>)
-            || (! voting && <Alert type="info">Votación cerrada!</Alert>);
-
-        return (
-            <TeamPage onLogout={this.logout}>
-                <div className="alert-container">
-                    {notice}
-                </div>
-
-                <Grid
-                    onCardChange={this.handleCardChange}
-                    choice={choice}
-                />
-            </TeamPage>
-        );
-    }
+      <Grid
+        onCardChange={handleCardChange}
+        choice={choice}
+      />
+    </TeamPage>
+  );
 }
 
 export default TeamPlanningView;
