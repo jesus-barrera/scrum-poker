@@ -19,8 +19,12 @@ export function setUserCard(id, card) {
   return { type: SET_USER_CARD, id, card };
 }
 
-export function setUserStatus(id, connected) {
-  return { type: SET_USER_STATUS, id, connected };
+export function setUserOffline(id) {
+  return { type: SET_USER_STATUS, id, connected: false };
+}
+
+export function setUserOnline(id) {
+  return { type: SET_USER_STATUS, id, connected: true };
 }
 
 // Reducer

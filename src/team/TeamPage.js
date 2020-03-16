@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Header, Page } from '../common/layout';
-import logoutIcon from '../assets/cerrar-sesion.svg';
+import logoutIcon from '../media/icons/cerrar-sesion.svg';
 
 function TeamViewHeader({ onLogout }) {
   const user = useSelector((state) => state.user);

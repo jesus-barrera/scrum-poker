@@ -81,6 +81,11 @@ function setupCreatorSocket(socket, room) {
     socket.on('disconnect', function () {
         closeRoom(room);
     });
+
+    socket.on('close room', function (ack) {
+        closeRoom(room);
+        ack();
+    });
 }
 
 function setupJoiningSocket(socket, user, room) {

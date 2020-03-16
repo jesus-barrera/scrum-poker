@@ -12,7 +12,8 @@ import {
   addUser,
   removeUser,
   setUserCard,
-  setUserStatus,
+  setUserOffline,
+  setUserOnline,
 } from '../../redux/ducks/users';
 
 import {
@@ -36,20 +37,20 @@ function MasterPlanningView({ socket, notify }) {
 
     socket.on('card changed', (id, card) => {
       if (card === 'Bk') {
-        notify({ type: 'info', message: formatMsg(users[id], ' sugiere un descanso')});
+        notify({ type: 'info', message: formatMsg(users[id], 'sugiere un descanso')});
       }
 
       dispatch(setUserCard(id, card));
     });
 
     socket.on('user left', (id) => {
-      notify({ type: 'info', message: formatMsg(users[id], ' abandonó la sesión') });
+      notify({ type: 'info', message: formatMsg(users[id], 'abandonó la sesión') });
 
       dispatch(removeUser(id));
     });
 
-    socket.on('user disconnected', (id) => dispatch(setUserStatus(id, false)));
-    socket.on('user connected', (id) => dispatch(setUserStatus(id, true)));
+    socket.on('user disconnected', (id) => dispatch(setUserOffline(id)));
+    socket.on('user connected', (id) => dispatch(setUserOnline(id)));
     socket.on('disconnect', () => dispatch(leaveRoom()));
 
     return () => {
@@ -79,16 +80,19 @@ function MasterPlanningView({ socket, notify }) {
     [dispatch, socket, users],
   );
 
-  if (room.voting && Object.keys(users).length === 0) {
-    return <NoUsersMessage sessionId={room.id} />
-  }
+  const handleLogout = useCallback(() => {
+    socket.emit('close room', () => dispatch(leaveRoom()));
+  }, [dispatch, socket]);
 
   return (
-    <MasterPage>
-      {room.voting
-        ? <VotingPanel onEndVoting={handleEndVoting} />
-        : <ResultsPanel results={results} onStartVoting={handleStartVoting} />
-      }
+    <MasterPage onLogout={handleLogout}>
+      {room.voting && Object.keys(users).length === 0 ? (
+        <NoUsersMessage sessionId={room.id} />
+      ) : room.voting ? (
+        <VotingPanel onEndVoting={handleEndVoting} />
+      ) : (
+        <ResultsPanel results={results} onStartVoting={handleStartVoting} />
+      )}
     </MasterPage>
   );
 }

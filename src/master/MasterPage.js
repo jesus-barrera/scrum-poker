@@ -1,13 +1,14 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Page, Header } from '../common/layout';
+import logoutIcon from '../media/icons/cerrar-sesion.svg';
 
-function MasterViewHeader() {
+function MasterViewHeader({ onLogout }) {
   const { id, name } = useSelector((state) => state.room);
 
   return (
     <Header>
-      <div className="session">
+      <div className="header__item session">
         <span className="session__name">
           {name} |
         </span>
@@ -15,14 +16,22 @@ function MasterViewHeader() {
           <b> ID</b>: {id}
         </span>
       </div>
+      <img
+        className="header__logout"
+        src={logoutIcon}
+        onClick={onLogout}
+        alt="logout"
+      />
     </Header>
   );
 }
 
-function MasterPage({ children }) {
+function MasterPage({ onLogout, children }) {
   return (
     <Page
-      header={<MasterViewHeader/>}
+      header={
+        <MasterViewHeader onLogout={onLogout} />
+      }
     >
       {children}
     </Page>
