@@ -1,68 +1,80 @@
-import React from 'react';
-import { connect } from 'react-redux';
+import React, { useCallback, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { Header, Page } from '../common/layout';
 import JoinForm from './JoinForm';
 import CreateForm from './CreateForm';
 import { joinRoom, createRoom } from '../redux/ducks/room';
+import isMobile from '../common/helpers/isMobile';
+import './Login.css';
 
-class Login extends React.Component {
-    constructor(props) {
-        super(props);
+const Forms = {
+  JOIN: 'JOIN',
+  CREATE: 'CREATE',
+};
 
-        this.handleJoin = this.handleJoin.bind(this);
-        this.handleCreate = this.handleCreate.bind(this);
+function Login({  socket }) {
+  const dispatch = useDispatch();
+
+  // Set default form. If the device is mobile, we show the join form first.
+  const [form, setForm] = useState(isMobile()
+    ? Forms.JOIN
+    : Forms.CREATE);
+
+  const switchForm = useCallback(() => {
+    setForm(form === Forms.CREATE
+      ? Forms.JOIN
+      : Forms.CREATE);
+  }, [form]);
+
+  const handleJoin = useCallback(({ sessionId, username }) => {
+    if (socket.disconnected) {
+      alert("No se pudo conectar al servidor.");
+      return;
     }
 
-    handleJoin(data) {
-        var { sessionId, username } = data;
-        var { socket, onJoin } = this.props;
+    socket.emit('join room', sessionId, username, (res) => {
+      if (res.error) {
+        alert(res.error);
+        return;
+      }
 
-        if (socket.disconnected) {
-            alert("No se pudo conectar al servidor.");
-            return;
-        }
+      dispatch(joinRoom(res.room, res.user));
+    });
+  }, [dispatch, socket]);
 
-        socket.emit('join room', sessionId, username, (response) => {
-            if (response.error) {
-                alert(response.error);
-                return;
-            }
-
-            onJoin(response);
-        });
+  const handleCreate = useCallback(({ sessionName }) => {
+    if (socket.disconnected) {
+      alert("No se pudo conectar al servidor.");
+      return;
     }
 
-    handleCreate(data) {
-        var {sessionName} = data;
-        var {socket, onCreate} = this.props;
-
-        if (socket.disconnected) {
-            alert("No se pudo conectar al servidor.");
-            return;
-        }
-
-        socket.emit('create room', sessionName, onCreate);
-    }
-
-    render() {
-        return (
-            <Page header={<Header />}>
-                <CreateForm onSubmit={this.handleCreate} />
-                <JoinForm onSubmit={this.handleJoin} />
-            </Page>
-        );
-    }
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    onJoin: ({ room, user }) => {
-      dispatch(joinRoom(room, user));
-    },
-    onCreate: (room) => {
+    socket.emit('create room', sessionName, (room) => {
       dispatch(createRoom(room));
-    },
-  };
+    });
+  }, [dispatch, socket]);
+
+  return (
+    <Page
+      header={
+        false && (<Header>
+          <button onClick={switchForm}>
+            {form === Forms.JOIN ? 'Crear' : 'Unirse'}
+          </button>
+        </Header>)
+      }
+    >
+      <h1 style={{ fontWeight: 400, textAlign: 'center' }}>Scrum Poker!</h1>
+
+      {form === Forms.JOIN ? (
+        <JoinForm onSubmit={handleJoin} />
+      ) : (
+        <CreateForm onSubmit={handleCreate} />
+      )}
+      <div>
+
+      </div>
+    </Page>
+  );
 }
 
-export default connect(null, mapDispatchToProps)(Login);
+export default Login;

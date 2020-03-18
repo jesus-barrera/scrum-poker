@@ -1,63 +1,60 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 
-class JoinForm extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {sessionId: '', username: ''};
+function JoinForm({ onSubmit }) {
+  const [values, setValues] = useState({ sessionId: '', username: '' });
 
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleInput = this.handleInput.bind(this);
-        this.handleBlur = this.handleBlur.bind(this);
+  const handleInput = useCallback(({ target }) => {
+    setValues({
+      ...values,
+      [target.name]: target.value
+    });
+  }, [values]);
+
+  const handleBlur = useCallback(({ target }) => {
+    setValues({
+      ...values,
+      [target.name]: target.value.trim()
+    });
+  }, [values]);
+
+  const handleSubmit = useCallback((e) => {
+    e.preventDefault();
+
+    if (! values.sessionId || ! values.username) {
+      alert("Datos incorrectos!");
+      return;
     }
 
-    handleInput(e) {
-        this.setState({
-            [e.target.name]: e.target.value
-        });
-    }
+    onSubmit(values);
+  }, [values, onSubmit]);
 
-    handleBlur(e) {
-        this.setState({
-            [e.target.name]: e.target.value.trim()
-        });
-    }
+  return (
+    <>
 
-    handleSubmit(e) {
-        e.preventDefault();
-        if (! this.state.sessionId || ! this.state.username) {
-            alert("Datos incorrectos!");
-            return;
-        }
-
-        this.props.onSubmit(this.state);
-    }
-
-    render() {
-        return (
-            <form onSubmit={this.handleSubmit}>
-                <h3>Unirse a una sesión</h3>
-                <fieldset>
-                    <input
-                        name="sessionId"
-                        placeholder="ID de sesión"
-                        onChange={this.handleInput}
-                        onBlur={this.handleBlur}
-                        value={this.state.sessionId}
-                    />
-                </fieldset>
-                <fieldset>
-                    <input
-                        name="username"
-                        placeholder="Tú nombre"
-                        onChange={this.handleInput}
-                        onBlur={this.handleBlur}
-                        value={this.state.username}
-                    />
-                </fieldset>
-                <button>Entrar</button>
-            </form>
-        );
-    }
+      <form onSubmit={handleSubmit}>
+        <fieldset>
+          <label>Usuario: </label>
+          <input
+            name="username"
+            onChange={handleInput}
+            onBlur={handleBlur}
+            value={values.username}
+          />
+        </fieldset>
+        <fieldset>
+          <label>PIN de la sesión: </label>
+          <input
+            name="sessionId"
+            autoComplete="off"
+            onChange={handleInput}
+            onBlur={handleBlur}
+            value={values.sessionId}
+          />
+        </fieldset>
+        <button>ENTRAR</button>
+      </form>
+    </>
+  );
 }
 
-export default JoinForm;
+export default React.memo(JoinForm);

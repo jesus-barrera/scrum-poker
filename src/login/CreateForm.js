@@ -1,55 +1,50 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 
-class CreateForm extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {sessionName: ''};
+function CreateForm({ onSubmit }) {
+  const [values, setValues] = useState({ sessionName: '' });
 
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleInput = this.handleInput.bind(this);
-        this.handleBlur = this.handleBlur.bind(this);
+  const handleInput = useCallback(({ target }) => {
+    setValues({
+      ...values,
+      [target.name]: target.value
+    });
+  }, [values]);
+
+  const handleBlur = useCallback(({ target }) => {
+    setValues({
+      ...values,
+      [target.name]: target.value.trim()
+    });
+  }, [values]);
+
+  const handleSubmit = useCallback((e) => {
+    e.preventDefault();
+    if (! values.sessionName) {
+      alert("Datos incorrectos!");
+      return;
     }
 
-    handleInput(e) {
-        this.setState({
-            [e.target.name]: e.target.value
-        });
-    }
+    onSubmit(values);
+  }, [values, onSubmit]);
 
-    handleBlur(e) {
-        this.setState({
-            [e.target.name]: e.target.value.trim()
-        });
-    }
+  return (
+    <>
 
-    handleSubmit(e) {
-        e.preventDefault();
-        if (! this.state.sessionName) {
-            alert("Datos incorrectos!");
-            return;
-        }
+      <form onSubmit={handleSubmit}>
+        <fieldset>
+          <label>Nombre de sesión: </label>
 
-        this.props.onSubmit(this.state);
-    }
-
-    render() {
-        return (
-            <form onSubmit={this.handleSubmit}>
-                <h3>Crear nueva sesión</h3>
-                <fieldset>
-                    <input
-                        onChange={this.handleInput}
-                        onBlur={this.trimInput}
-                        value={this.state.sessionName}
-                        name="sessionName"
-                        placeholder="Nombre de la sesión"
-                    />
-                </fieldset>
-
-                <button>Crear</button>
-            </form>
-        );
-    }
+          <input
+            onChange={handleInput}
+            onBlur={handleBlur}
+            value={values.sessionName}
+            name="sessionName"
+          />
+        </fieldset>
+        <button>CREAR</button>
+      </form>
+    </>
+  );
 }
 
 export default CreateForm;
