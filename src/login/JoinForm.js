@@ -30,6 +30,7 @@ function JoinForm({ onSubmit }) {
 
   return (
     <>
+      <h2>Unirse a una sesión</h2>
 
       <form onSubmit={handleSubmit}>
         <fieldset>
@@ -41,6 +42,7 @@ function JoinForm({ onSubmit }) {
             value={values.username}
           />
         </fieldset>
+
         <fieldset>
           <label>PIN de la sesión: </label>
           <input
@@ -51,6 +53,7 @@ function JoinForm({ onSubmit }) {
             value={values.sessionId}
           />
         </fieldset>
+
         <button>ENTRAR</button>
       </form>
     </>

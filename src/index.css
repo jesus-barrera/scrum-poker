@@ -6,8 +6,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* background-color: #f9f9f9; */
-  color: #696969;
+  color: #393939;
+  font-size: 16px;
 }
 
 /* Layout */
@@ -70,25 +70,6 @@ main {
   padding: 50px 20px 20px 20px;
   margin: auto;
   max-width: 600px;
-}
-
-/* Forms */
-form button {
-  display: block;
-  margin-left: auto; /* right align */
-}
-
-fieldset {
-  border: 0;
-  padding: 0;
-  margin: 0 0 10px 0;
-}
-
-input {
-  box-sizing: border-box;
-  border: 2px solid #9b9b9b;
-  padding: 10px;
-  width: 100%;
 }
 
 /* Table */

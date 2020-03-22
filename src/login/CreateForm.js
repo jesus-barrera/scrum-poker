@@ -29,11 +29,11 @@ function CreateForm({ onSubmit }) {
 
   return (
     <>
+      <h2>Crear una sesión</h2>
 
       <form onSubmit={handleSubmit}>
         <fieldset>
           <label>Nombre de sesión: </label>
-
           <input
             onChange={handleInput}
             onBlur={handleBlur}
@@ -41,6 +41,7 @@ function CreateForm({ onSubmit }) {
             name="sessionName"
           />
         </fieldset>
+
         <button>CREAR</button>
       </form>
     </>

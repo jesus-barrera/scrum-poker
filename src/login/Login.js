@@ -1,13 +1,12 @@
 import React, { useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Header, Page } from '../common/layout';
 import JoinForm from './JoinForm';
 import CreateForm from './CreateForm';
 import { joinRoom, createRoom } from '../redux/ducks/room';
 import isMobile from '../common/helpers/isMobile';
 import './Login.css';
 
-const Forms = {
+export const Forms = {
   JOIN: 'JOIN',
   CREATE: 'CREATE',
 };
@@ -20,7 +19,9 @@ function Login({  socket }) {
     ? Forms.JOIN
     : Forms.CREATE);
 
-  const switchForm = useCallback(() => {
+  const switchForm = useCallback((e) => {
+    e.preventDefault();
+
     setForm(form === Forms.CREATE
       ? Forms.JOIN
       : Forms.CREATE);
@@ -54,26 +55,21 @@ function Login({  socket }) {
   }, [dispatch, socket]);
 
   return (
-    <Page
-      header={
-        false && (<Header>
-          <button onClick={switchForm}>
-            {form === Forms.JOIN ? 'Crear' : 'Unirse'}
-          </button>
-        </Header>)
-      }
-    >
-      <h1 style={{ fontWeight: 400, textAlign: 'center' }}>Scrum Poker!</h1>
+    <section>
+      <h1>Scrum Poker!</h1>
 
       {form === Forms.JOIN ? (
         <JoinForm onSubmit={handleJoin} />
       ) : (
         <CreateForm onSubmit={handleCreate} />
       )}
-      <div>
 
-      </div>
-    </Page>
+      <form>
+        <a href="/" onClick={switchForm}>
+          {form === Forms.JOIN ? '¿Crear una sesión?' : '¿Unirse a una sesión?'}
+        </a>
+      </form>
+    </section>
   );
 }
 
