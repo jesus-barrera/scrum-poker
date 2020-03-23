@@ -44,7 +44,7 @@ function JoinForm({ onSubmit }) {
         </fieldset>
 
         <fieldset>
-          <label>PIN de la sesión: </label>
+          <label>ID de la sesión: </label>
           <input
             name="sessionId"
             autoComplete="off"

@@ -16,25 +16,25 @@
     text-align: center;
     margin-top: 20px;
     position: relative;
-    font-size: 30vw;
+    font-size: 30vmin;
     padding-top: 130%;
     width: 100%;
 }
 
 .grid.grid-3-cols .card {
-    font-size: 8vw;
+    font-size: 8vmin;
     padding-top: 40%;
     width: 30%;
 }
 
 .grid.grid-4-cols .card {
-    font-size: 6vw;
+    font-size: 6vmin;
     padding-top: 30%;
     width: 23%;
 }
 
 .grid.grid-5-cols .card {
-    font-size: 3vw;
+    font-size: 3vmin;
     padding-top: 20%;
     width: 15%;
 }
