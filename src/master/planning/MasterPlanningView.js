@@ -29,11 +29,11 @@ function formatMsg(user, message) {
 }
 
 function MasterPlanningView({ socket, notify }) {
-  const [results, setResults] = useState();
-  const [connected, setConnected] = useState(socket.connected);
   const users = useSelector(state => state.users);
   const room = useSelector(state => state.room);
   const dispatch = useDispatch();
+  const [connected, setConnected] = useState(socket.connected);
+  const [results, setResults] = useState(calcResults(users));
 
   useEffect(() => {
     function handleConnect() {
@@ -92,6 +92,8 @@ function MasterPlanningView({ socket, notify }) {
 
   const handleStartVoting = useCallback(
     () => {
+      if (!socket.connected) return;
+
       socket.emit('start voting');
       dispatch(startVoting());
     },
@@ -100,6 +102,8 @@ function MasterPlanningView({ socket, notify }) {
 
   const handleEndVoting = useCallback(
     () => {
+      if (!socket.connected) return;
+
       socket.emit('end voting');
       dispatch(endVoting());
       setResults(calcResults(users));
@@ -108,6 +112,8 @@ function MasterPlanningView({ socket, notify }) {
   );
 
   const handleLogout = useCallback(() => {
+    if (!socket.connected) return;
+
     socket.emit('close room', () => dispatch(leaveRoom()));
   }, [dispatch, socket]);
 

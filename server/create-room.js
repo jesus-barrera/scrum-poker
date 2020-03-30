@@ -53,6 +53,10 @@ function addListeners(io, socket) {
       // each time a voting starts.
       rooms.update(socket.roomId, { voting: true, count: room.count + 1 });
 
+      // Reset users cards
+      Object.keys(users.filter((user => user.roomId === socket.roomId)))
+        .forEach((id) => users.update(id, { card: null }));
+
       // Broadcast to room members
       socket.to(socket.roomId).emit('start voting');
     }

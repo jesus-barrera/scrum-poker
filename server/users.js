@@ -67,9 +67,9 @@ function update(id, values) {
 
 module.exports = {
   create: create,
+  remove: remove,
   find: find,
   findByUsername: findByUsername,
-  remove: remove,
   filter: filter,
   first: first,
   update: update,
