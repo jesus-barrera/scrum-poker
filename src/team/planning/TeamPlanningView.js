@@ -86,8 +86,8 @@ function TeamPlanningView({ socket }) {
     });
   }, [socket, dispatch]);
 
-  var notice = (! connected && <Alert type="error">Sin conexion!</Alert>)
-    || (! room.voting && <Alert type="info">Votación cerrada!</Alert>);
+  var notice = (!connected && <Alert type="error">Sin conexion!</Alert>)
+    || (!room.voting && <Alert type="info">Votación cerrada!</Alert>);
 
   return (
     <TeamPage onLogout={logout}>

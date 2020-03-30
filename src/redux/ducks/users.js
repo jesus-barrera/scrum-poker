@@ -30,7 +30,10 @@ export function setUserOnline(id) {
 // Reducer
 export default function reducer(state = {}, action) {
   switch (action.type) {
-    case CREATE_ROOM: case LEAVE_ROOM:
+    case CREATE_ROOM:
+      return { ...action.users };
+
+    case LEAVE_ROOM:
       return {};
 
     case ADD_USER:
