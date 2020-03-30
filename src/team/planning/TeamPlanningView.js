@@ -20,7 +20,7 @@ function TeamPlanningView({ socket }) {
 
   useEffect(() => {
     function handleConnect() {
-      socket.emit('join room', room.id, user.username, (res) => {
+      socket.emit('rejoin room', room.id, user.username, (res) => {
         if (res.error) {
           dispatch(leaveRoom());
         } else {

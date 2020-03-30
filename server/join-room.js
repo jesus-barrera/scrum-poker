@@ -1,127 +1,166 @@
+/**
+ * Allows a client to join a room and emit special events for that room. This
+ * client is referred as a guest of the room.
+ */
+
 var _ = require('./util');
 var rooms = require('./rooms');
 var users = require('./users');
 
-function addListener(io, socket) {
-  socket.on('join room', function (roomId, username, ack) {
-    var room;
+function addListeners(io, socket) {
+  // Join an existing room
+  socket.on('join room', function (roomId, username, fn) {
+    if (socket.userId) return;
 
-    try {
-      var { user, isNew } = findOrCreate(socket, roomId, username);
-    } catch (error) {
-      ack({ error });
+    const room = rooms.find(roomId);
+
+    if (! room) {
+      fn({ error: 'room not found' });
       return;
     }
 
-    room = rooms.find(roomId);
+    if (users.findByUsername(roomId, username) !== null) {
+      fn({ error: 'user already exists' });
+      return;
+    }
 
-    setupSocket(socket, user.id, room.id);
+    const user = users.create(socket, roomId, username);
 
-    if (isNew) {
-      socket.to(roomId).emit('user joined', mapUser(user));
+    setRoom(socket, room.id, user.id);
+
+    socket.to(roomId).emit('user joined', user);
+
+    fn(response(room, user));
+  });
+
+  // Rejoin a room with an active session for the user. Used in case the client
+  // lost the connection.
+  socket.on('rejoin room', function (roomId, username, fn) {
+    if (socket.userId) return;
+
+    const room = rooms.find(roomId);
+
+    if (! room) {
+      fn({ error: 'room not found' });
+      return;
+    }
+
+    const user = users.findByUsername(roomId, username);
+
+    // The client must identify itself using the userId sent the first time it
+    // joined the room. This way we know is the same client.
+    if (user && socket.handshake.query.userId === user.id) {
+      setRoom(socket, room.id, user.id);
+
+      // Set the active socket for the user.
+      reassignSocket(io, socket, user.id);
+
+      fn(response(room, user));
     } else {
-      reassignSocket(user.id, io, socket);
+      fn({ error: 'user not found' });
     }
-
-    ack({
-      room: _.pick(room, ['id', 'name', 'voting', 'count']),
-      user: _.pick(user, ['id', 'username'])
-    });
   });
-}
 
-function setupSocket(socket, userId, roomId) {
-  socket.join(roomId);
-
+  // Handle 'card changed' event
   socket.on('card changed', function (card) {
-    users.update(userId, { card: card });
-    socket.to(roomId).emit('card changed', userId, card);
-  });
+    if (socket.userId) {
+      users.update(socket.userId, { card: card });
 
-  socket.on('disconnect', function (reason) {
-    var user = users.find(userId);
-
-    if (socket.id === user.socket) {
-      users.update(userId, { socket: null });
-      socket.to(roomId).emit('user disconnected', userId);
+      socket.to(socket.roomId).emit('card changed', socket.userId, card);
     }
   });
 
-  socket.on('leave room', function (ack) {
-    removeListeners(socket);
+  // Handle socket disconnection
+  socket.on('disconnect', function (reason) {
+    if (socket.userId) {
+      const user = users.find(socket.userId);
 
-    socket.to(roomId).emit('user left', userId);
-    socket.leave(roomId);
-    users.remove(userId);
+      if (socket.id === user.socket) {
+        users.update(socket.userId, { socket: null, connected: false });
 
-    ack();
+        socket.to(socket.roomId).emit('user disconnected', socket.userId);
+      }
+    }
+  });
+
+  // Handle 'leave room' event
+  socket.on('leave room', function (fn) {
+    if (socket.userId) {
+      socket.to(socket.roomId).emit('user left', socket.userId);
+
+      users.remove(socket.userId);
+
+      unsetRoom(socket);
+    }
+
+    fn();
   });
 }
 
-function reassignSocket(userId, io, socket) {
+// Stores the user/room in the socket session
+function setRoom(socket, roomId, userId) {
+  socket.userId = userId;
+  socket.roomId = roomId;
+
+  socket.join(roomId);
+}
+
+// Clears the user/room linked to the socket
+function unsetRoom(socket) {
+  if (socket.roomId) {
+    socket.leave(socket.roomId);
+
+    delete socket.userId;
+    delete socket.roomId;
+  }
+}
+
+
+// Response for a client that joined a room.
+function response(room, user) {
+  return {
+    room: _.pick(room, ['id', 'name', 'voting', 'count']),
+    user: _.pick(user, ['id', 'username'])
+  };
+}
+
+// Sets the active socket for the user. If a socket was already active, it is
+// disconnected.
+function reassignSocket(io, socket, userId) {
   var user = users.find(userId);
-  var prev = user.socket;
 
-  users.update(userId, { socket: socket.id });
+  users.update(userId, { socket: socket.id, connected: true });
 
-  if (prev) {
-    io.sockets.connected[prev].disconnect(true);
+  if (user.socket) {
+    io.sockets.connected[user.socket].disconnect(true);
   } else {
     socket.to(user.roomId).emit('user connected', userId);
   }
 }
 
+// Remove all listeners added by addListeners
 function removeListeners(socket) {
+  socket.removeAllListeners('join room');
+  socket.removeAllListeners('rejoin room');
   socket.removeAllListeners('card changed');
   socket.removeAllListeners('leave room');
   socket.removeAllListeners('disconnect');
 }
 
-function findOrCreate(socket, roomId, username) {
-  if (! rooms.find(roomId)) {
-    throw 'room not found';
-  }
-
-  var user = users.first(user => (
-    user.roomId === roomId && user.username === username
-  ));
-
-  if (user) {
-    if (socket.handshake.query.userId === user.id) {
-      return { user: user, isNew: false };
-    }
-
-    throw 'user already exists';
-  }
-
-  user = users.create(socket, roomId, username);
-
-  return { user: user, isNew: true };
-}
-
-function mapUser(user) {
-  return {
-    id: user.id,
-    card: user.card,
-    username: user.username,
-    connected: Boolean(user.socket)
-  };
-}
-
+// Removes an user from a room, used when the host closes the room.
 function removeUser(io, userId) {
   var user = users.find(userId);
   var socket = user && user.socket && io.sockets.connected[user.socket];
 
   if (socket) {
-    removeListeners(socket);
-    socket.leave(user.roomId);
+    unsetRoom(socket);
   }
 
   users.remove(user.id);
 }
 
 module.exports = {
-  addListener: addListener,
+  addListeners: addListeners,
   removeListeners: removeListeners,
   removeUser: removeUser,
 };

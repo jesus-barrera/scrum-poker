@@ -6,6 +6,7 @@ function create(socket, roomId, username) {
     username: username,
     card: null,
     socket: socket.id,
+    connected: true,
     roomId: roomId
   };
 
@@ -24,6 +25,10 @@ function find(id) {
   }
 
   return null;
+}
+
+function findByUsername(roomId, username) {
+  return first(user => user.roomId === roomId && user.username === username);
 }
 
 function filter(callback) {
@@ -63,6 +68,7 @@ function update(id, values) {
 module.exports = {
   create: create,
   find: find,
+  findByUsername: findByUsername,
   remove: remove,
   filter: filter,
   first: first,

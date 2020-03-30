@@ -7,7 +7,9 @@ function create(socket, name) {
     name: name,
     voting: true,
     count: 1,
-    owner: socket.id
+    hostId: socket.id,
+    socket: socket.id,
+    sessionTimeout: null,
   };
 
   rooms[room.id] = room;

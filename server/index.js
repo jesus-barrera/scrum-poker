@@ -27,8 +27,8 @@ app.get('/', function(req, res) {
 // the client between reconnections, we achieve this by using the ID generated
 // when a client creates or joins a room.
 io.on('connection', function (socket) {
-    CreatorSocket.addListener(io, socket);
-    JoiningSocket.addListener(io, socket);
+    CreatorSocket.addListeners(io, socket);
+    JoiningSocket.addListeners(io, socket);
 });
 
 http.listen(8080, function () {

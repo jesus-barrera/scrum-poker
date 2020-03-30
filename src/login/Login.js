@@ -49,8 +49,8 @@ function Login({  socket }) {
       return;
     }
 
-    socket.emit('create room', sessionName, (room) => {
-      dispatch(createRoom(room));
+    socket.emit('create room', sessionName, ({ room, users }) => {
+      dispatch(createRoom(room, users));
     });
   }, [dispatch, socket]);
 

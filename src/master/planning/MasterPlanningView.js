@@ -53,6 +53,8 @@ function MasterPlanningView({ socket, notify }) {
     socket.on('user connected', (id) => dispatch(setUserOnline(id)));
     socket.on('disconnect', () => dispatch(leaveRoom()));
 
+    socket.io.opts.query = { hostId: room.hostId };
+
     return () => {
       socket.off('user joined');
       socket.off('card changed');
@@ -61,7 +63,7 @@ function MasterPlanningView({ socket, notify }) {
       socket.off('user left');
       socket.off('disconnect');
     };
-  }, [socket, dispatch, users, notify]);
+  }, [socket, dispatch, users, room, notify]);
 
   const handleStartVoting = useCallback(
     () => {
