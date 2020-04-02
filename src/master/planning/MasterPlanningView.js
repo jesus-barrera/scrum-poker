@@ -25,7 +25,7 @@ import {
 } from '../../redux/ducks/room';
 
 function formatMsg(user, message) {
-  return <span>¡<b>{user.username}</b> {message}!</span>;
+  return <span><b>{user.username}</b> {message}!</span>;
 }
 
 function MasterPlanningView({ socket, notify }) {
@@ -117,6 +117,12 @@ function MasterPlanningView({ socket, notify }) {
     socket.emit('close room', () => dispatch(leaveRoom()));
   }, [dispatch, socket]);
 
+  const handleRemoveUser = useCallback((id) => {
+    socket.emit('remove user', id, () => {
+      dispatch(removeUser(id));
+    });
+  }, [dispatch, socket]);
+
   return (
     <MasterPage onLogout={handleLogout}>
       <div className="alert-container">
@@ -126,9 +132,15 @@ function MasterPlanningView({ socket, notify }) {
       {room.voting && Object.keys(users).length === 0 ? (
         <NoUsersMessage sessionId={room.id} />
       ) : room.voting ? (
-        <VotingPanel onEndVoting={handleEndVoting} />
+        <VotingPanel
+          onEndVoting={handleEndVoting}
+          onRemoveUser={handleRemoveUser}
+        />
       ) : (
-        <ResultsPanel results={results} onStartVoting={handleStartVoting} />
+        <ResultsPanel
+          results={results}
+          onStartVoting={handleStartVoting}
+        />
       )}
     </MasterPage>
   );

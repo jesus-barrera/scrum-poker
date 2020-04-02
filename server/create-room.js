@@ -93,6 +93,19 @@ function addListeners(io, socket) {
     }
   });
 
+  // Handle 'remove user' event
+  socket.on('remove user', function (id, fn) {
+    const user = users.find(id);
+
+    if (! user) return;
+
+    io.to(user.socket).emit('room closed');
+
+    JoiningSocket.removeUser(io, id);
+
+    fn();
+  });
+
   // Handle 'close room' event
   socket.on('close room', function (fn) {
     if (socket.roomId) {

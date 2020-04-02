@@ -1,6 +1,5 @@
 import { combineReducers, createStore } from 'redux';
 import * as reducers from './ducks';
-import { RoleTypes } from './ducks/role';
 
 const rootReducer = combineReducers(reducers);
 

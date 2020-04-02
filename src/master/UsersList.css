@@ -1,20 +1,67 @@
 .user.offline {
-    color: #9b9b9b;
+  color: #9b9b9b;
 }
 
+/*  Status indicator */
+.user__status {
+  height: 0.5rem;
+  width: 0.5rem;
+  background-color: #66bf2f;
+  border: 2px solid #66bf2f;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+.offline .user__status {
+  background: none;
+  border: 2px solid #e6e6e6;
+}
+
+/* Fields */
 .user__name, .user_id {
-    text-align: left;
+  text-align: left;
 }
 
 .user__id {
-    width: 1%;
+  width: 1%;
+  font-weight: 600;
 }
 
 .user__card {
-    text-align: center;
-    width: 115px;
+  text-align: center;
+  width: 115px;
 }
 
+
+/* Remove button */
+.user__remove {
+  width: 1%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.user__remove > button {
+  padding: 0.1rem;
+  background: none;
+  visibility: hidden;
+}
+
+.user:hover .user__remove > button {
+  visibility: visible;
+}
+
+.user__remove > button svg {
+  height: 1rem;
+  fill: #393939;
+}
+
+.user__remove > button:hover svg {
+  fill: #825492;
+}
+
+/* No users message */
 .no-users {
-    text-align: center;
+  text-align: center;
 }

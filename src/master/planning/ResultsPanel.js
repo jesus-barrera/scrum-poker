@@ -8,7 +8,6 @@ function ResultsPanel({ onStartVoting, results }) {
       <Results {...results} />
       <UsersList
         users={results.users}
-        showResponse={true}
       />
       <div className="actions">
         <button onClick={onStartVoting}>Nueva Votación</button>
