@@ -1,17 +1,17 @@
 var path = require('path');
 var express = require('express');
 var app = express();
-
+var PORT = process.env.PORT || 8080;
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var CreatorSocket = require('./create-room');
 var JoiningSocket = require('./join-room');
 
 // Serve React App
-app.use(express.static(path.join(__dirname, '../build')));
+app.use(express.static(path.join(__dirname, '../client/build')));
 
 app.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname, '../build', 'index.html'));
+    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
 });
 
 // Scrum Poker! WebSocket server.
@@ -31,6 +31,6 @@ io.on('connection', function (socket) {
     JoiningSocket.addListeners(io, socket);
 });
 
-http.listen(8080, function () {
-    console.log('listening on :8080');
+http.listen(PORT, function () {
+    console.log('listening on ' + PORT);
 });

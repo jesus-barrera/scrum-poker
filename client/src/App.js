@@ -6,7 +6,7 @@ import { RoleTypes } from './redux/ducks/role';
 import { TeamPlanningView } from './team';
 import { MasterPlanningView } from './master';
 
-var socket = io(":8080", { autoConnect: false });
+var socket = io('', { autoConnect: false });
 
 class App extends React.Component {
   componentDidMount() {
