@@ -44,22 +44,18 @@ export default function reducer(state = {}, action) {
       return rest;
 
     case SET_USER_STATUS:
-      return {
-        ...state,
-        [action.id]: {
-          ...state[action.id],
+      return Object.assign({}, state, {
+        [action.id]: Object.assign({}, state[action.id], {
           connected: action.connected,
-        },
-      };
+        }),
+      });
 
     case SET_USER_CARD:
-      return {
-        ...state,
-        [action.id]: {
-          ...state[action.id],
-          card: action.card
-        },
-      };
+      return Object.assign({}, state, {
+        [action.id]: Object.assign({}, state[action.id], {
+          card: action.card,
+        }),
+      });
 
     case START_VOTING:
       return Object.keys(state).reduce((val, id) => {
