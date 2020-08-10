@@ -34,7 +34,7 @@ function JoinForm({ onSubmit }) {
 
       <form onSubmit={handleSubmit}>
         <fieldset>
-          <label>Usuario: </label>
+          <label>Tu nombre: </label>
           <input
             name="username"
             onChange={handleInput}
@@ -44,7 +44,7 @@ function JoinForm({ onSubmit }) {
         </fieldset>
 
         <fieldset>
-          <label>ID de la sesión: </label>
+          <label>ID de sesión: </label>
           <input
             name="sessionId"
             autoComplete="off"

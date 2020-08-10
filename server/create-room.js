@@ -9,7 +9,7 @@ var users = require('./users');
 var JoiningSocket = require('./join-room');
 
 // How long to keep the room open after the host disconnects (milliseconds).
-const SESSION_TIME = 3 * 60000;
+const SESSION_TIME = 6 * 60000;
 
 function addListeners(io, socket) {
   // Create a new room
