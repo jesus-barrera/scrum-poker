@@ -70,6 +70,13 @@ function addListeners(io, socket) {
     }
   });
 
+  // Handle 'suggest break'
+  socket.on('suggest break', function () {
+    if (socket.userId) {
+      socket.to(socket.roomId).emit('suggest break', socket.userId);
+    }
+  });
+
   // Handle socket disconnection
   socket.on('disconnect', function (reason) {
     if (socket.userId) {

@@ -72,9 +72,13 @@ function TeamPlanningView({ socket }) {
   }, [socket]);
 
   const handleCardChange = useCallback((card) => {
-    if (socket.connected && room.voting) {
-      socket.emit('card changed', card);
-      setChoice(card);
+    if (socket.connected) {
+      if (card === 'Bk') {
+        socket.emit('suggest break');
+      } else if (room.voting) {
+        socket.emit('card changed', card);
+        setChoice(card);
+      }
     }
   }, [socket, room]);
 

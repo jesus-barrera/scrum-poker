@@ -50,11 +50,11 @@ function MasterPlanningView({ socket, notify }) {
     socket.on('user joined', (user) => dispatch(addUser(user)));
 
     socket.on('card changed', (id, card) => {
-      if (card === 'Bk') {
-        notify({ type: 'info', message: formatMsg(users[id], 'sugiere un descanso')});
-      }
-
       dispatch(setUserCard(id, card));
+    });
+
+    socket.on('suggest break', (id) => {
+      notify({ type: 'info', message: formatMsg(users[id], 'sugiere un descanso')});
     });
 
     socket.on('user left', (id) => {
@@ -73,6 +73,7 @@ function MasterPlanningView({ socket, notify }) {
     return () => {
       socket.off('user joined');
       socket.off('card changed');
+      socket.off('suggest break');
       socket.off('user disconnected');
       socket.off('user connected');
       socket.off('user left');
