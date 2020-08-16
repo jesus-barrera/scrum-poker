@@ -35,6 +35,12 @@ form fieldset {
   margin-bottom: 1.5rem;
 }
 
+form small {
+  color: #d00202;
+  display: block;
+  margin-top: 0.25rem;
+}
+
 button {
   background: #825492;
   border: none;

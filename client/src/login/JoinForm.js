@@ -1,32 +1,24 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
+import useForm from './useForm';
 
 function JoinForm({ onSubmit }) {
-  const [values, setValues] = useState({ sessionId: '', username: '' });
+  const { handleBlur, handleChange, handleSubmit, values, errors } = useForm({
+    defaultValues: { roomId: '', username: '' },
+    validate: (values) => {
+      const errors = {};
 
-  const handleInput = useCallback(({ target }) => {
-    setValues({
-      ...values,
-      [target.name]: target.value
-    });
-  }, [values]);
+      if (!values.roomId) {
+        errors.roomId = 'Debes ingresar el ID de sesión.';
+      }
 
-  const handleBlur = useCallback(({ target }) => {
-    setValues({
-      ...values,
-      [target.name]: target.value.trim()
-    });
-  }, [values]);
+      if (!values.username) {
+        errors.username = 'Debes ingresar un nombre.';
+      }
 
-  const handleSubmit = useCallback((e) => {
-    e.preventDefault();
-
-    if (! values.sessionId || ! values.username) {
-      alert("Datos incorrectos!");
-      return;
-    }
-
-    onSubmit(values);
-  }, [values, onSubmit]);
+      return errors;
+    },
+    onSubmit,
+  });
 
   return (
     <>
@@ -37,21 +29,23 @@ function JoinForm({ onSubmit }) {
           <label>Tu nombre: </label>
           <input
             name="username"
-            onChange={handleInput}
+            onChange={handleChange}
             onBlur={handleBlur}
             value={values.username}
           />
+          {errors.username && <small>{errors.username}</small>}
         </fieldset>
 
         <fieldset>
           <label>ID de sesión: </label>
           <input
-            name="sessionId"
+            name="roomId"
             autoComplete="off"
-            onChange={handleInput}
+            onChange={handleChange}
             onBlur={handleBlur}
-            value={values.sessionId}
+            value={values.roomId}
           />
+          {errors.roomId && <small>{errors.roomId}</small>}
         </fieldset>
 
         <button>ENTRAR</button>

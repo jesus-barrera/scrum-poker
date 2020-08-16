@@ -9,12 +9,8 @@ function MasterViewHeader({ onLogout }) {
   return (
     <Header>
       <div className="header__item session">
-        <span className="session__name">
-          {name} |
-        </span>
-        <span className="session__id">
-          <b> ID</b>: {id}
-        </span>
+        {name && <span className="session__name">{name}, &nbsp;</span>}
+        <span className="session__id"><b>ID de sesión:</b> {id}</span>
       </div>
       <img
         className="header__logout"

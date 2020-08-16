@@ -27,13 +27,13 @@ function Login({  socket }) {
       : Forms.CREATE);
   }, [form]);
 
-  const handleJoin = useCallback(({ sessionId, username }) => {
+  const handleJoin = useCallback(({ roomId, username }) => {
     if (socket.disconnected) {
       alert("No se pudo conectar al servidor.");
       return;
     }
 
-    socket.emit('join room', sessionId, username, (res) => {
+    socket.emit('join room', roomId, username, (res) => {
       if (res.error) {
         alert(res.error);
         return;
@@ -43,13 +43,13 @@ function Login({  socket }) {
     });
   }, [dispatch, socket]);
 
-  const handleCreate = useCallback(({ sessionName }) => {
+  const handleCreate = useCallback(({ roomName }) => {
     if (socket.disconnected) {
       alert("No se pudo conectar al servidor.");
       return;
     }
 
-    socket.emit('create room', sessionName, ({ room, users }) => {
+    socket.emit('create room', roomName, ({ room, users }) => {
       dispatch(createRoom(room, users));
     });
   }, [dispatch, socket]);
