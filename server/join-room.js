@@ -8,7 +8,7 @@ var rooms = require('./rooms');
 var users = require('./users');
 
 function addListeners(io, socket) {
-  // Join an existing room
+  // Join an existing room.
   socket.on('join room', function (roomId, username, fn) {
     if (socket.userId) return;
 
@@ -19,46 +19,29 @@ function addListeners(io, socket) {
       return;
     }
 
-    if (users.findByUsername(roomId, username) !== null) {
-      fn({ error: 'user already exists' });
-      return;
+    var user = users.findByUsername(roomId, username);
+
+    // If a client loses the connection, it can rejoin the room as the same user
+    // sending the user id known only by that client. If the username exists
+    // but the user id does not match, it's probably a diferent client so the
+    // request is rejected.
+    if (user && socket.handshake.query.userId !== user.id) {
+      return fn({ error: 'user already exists' });
     }
 
-    const user = users.create(socket, roomId, username);
+    // If the user already exists, simply reassign the active socket for that user,
+    // otherwise create a new user.
+    if (user) {
+      reassignSocket(io, socket, user.id);
+    } else {
+      user = users.create(socket, roomId, username);
+
+      socket.to(roomId).emit('user joined', user);
+    }
 
     setRoom(socket, room.id, user.id);
 
-    socket.to(roomId).emit('user joined', user);
-
-    fn(response(room, user));
-  });
-
-  // Rejoin a room with an active session for the user. Used in case the client
-  // lost the connection.
-  socket.on('rejoin room', function (roomId, username, fn) {
-    if (socket.userId) return;
-
-    const room = rooms.find(roomId);
-
-    if (! room) {
-      fn({ error: 'room not found' });
-      return;
-    }
-
-    const user = users.findByUsername(roomId, username);
-
-    // The client must identify itself using the userId sent the first time it
-    // joined the room. This way we know is the same client.
-    if (user && socket.handshake.query.userId === user.id) {
-      setRoom(socket, room.id, user.id);
-
-      // Set the active socket for the user.
-      reassignSocket(io, socket, user.id);
-
-      fn(response(room, user));
-    } else {
-      fn({ error: 'user not found' });
-    }
+    return fn(response(room, user));
   });
 
   // Handle 'card changed' event
@@ -121,7 +104,6 @@ function unsetRoom(socket) {
     delete socket.roomId;
   }
 }
-
 
 // Response for a client that joined a room.
 function response(room, user) {
