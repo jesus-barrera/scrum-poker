@@ -1,0 +1,15 @@
+#toast-container {
+  position: fixed;
+  padding: 10px;
+  top: 50px;
+  right: 0;
+  width: 100%;
+  box-sizing: border-box;
+  z-index: 3;
+}
+
+@media(max-width: 800px) {
+  #toast-container {
+    padding: 0;
+  }
+}
