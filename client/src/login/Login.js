@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import JoinForm from './JoinForm';
 import CreateForm from './CreateForm';
 import { joinRoom, createRoom } from '../redux/ducks/room';
+import { notify } from '../toast';
 import isMobile from '../common/helpers/isMobile';
 import './Login.css';
 
@@ -11,7 +12,21 @@ export const Forms = {
   CREATE: 'CREATE',
 };
 
-function Login({  socket }) {
+const handleError = (error) => {
+  let text = '';
+
+  if (error === 'room not found') {
+    text = 'No se encontró la sesión, comprueba que el ID es correcto.';
+  }
+
+  if (error === 'user exists') {
+    text = 'Alguien más está usando ese nombre, intenta con otro.';
+  }
+
+  notify({ type: 'error', text });
+}
+
+function Login({ socket }) {
   const dispatch = useDispatch();
 
   // Set default form. If the device is mobile, we show the join form first.
@@ -29,23 +44,22 @@ function Login({  socket }) {
 
   const handleJoin = useCallback(({ roomId, username }) => {
     if (socket.disconnected) {
-      alert("No se pudo conectar al servidor.");
+      notify({ type: 'error', text: 'No se pudo conectar al servidor.' });
       return;
     }
 
     socket.emit('join room', roomId, username, (res) => {
       if (res.error) {
-        alert(res.error);
-        return;
+        handleError(res.error);
+      } else {
+        dispatch(joinRoom(res.room, res.user));
       }
-
-      dispatch(joinRoom(res.room, res.user));
     });
   }, [dispatch, socket]);
 
   const handleCreate = useCallback(({ roomName }) => {
     if (socket.disconnected) {
-      alert("No se pudo conectar al servidor.");
+      notify({ type: 'error', text: 'No se pudo conectar al servidor.' });
       return;
     }
 

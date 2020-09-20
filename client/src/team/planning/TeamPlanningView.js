@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import Alert from '../../common/Alert';
+import { Toast } from '../../toast';
 import TeamPage from '../TeamPage';
 import Grid from './Grid';
 
@@ -111,14 +111,13 @@ function TeamPlanningView({ socket }) {
     });
   }, [socket, dispatch]);
 
-  var notice = (!connected && <Alert type="error">Sin conexion!</Alert>)
-    || (!room.voting && <Alert type="info">Votación cerrada!</Alert>);
-
   return (
     <TeamPage onLogout={logout}>
-      <div className="alert-container">
-        {notice}
-      </div>
+      {!connected && (
+        <Toast type="error">Sin Conexion! Conenctando con Scrum Poker!...</Toast>
+      )}
+
+      {connected && !room.voting && <Toast type="info">Votación Cerrada!</Toast>}
 
       <Grid
         onCardChange={handleCardChange}

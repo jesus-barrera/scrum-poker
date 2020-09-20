@@ -2,11 +2,12 @@ import React from 'react';
 import { connect } from 'react-redux';
 import io from 'socket.io-client';
 import Login from './login/Login';
+import { ToastContainer } from './toast';
 import { RoleTypes } from './redux/ducks/role';
 import { TeamPlanningView } from './team';
 import { MasterPlanningView } from './master';
 
-var socket = io('', { autoConnect: false });
+const socket = io('', { autoConnect: false });
 
 class App extends React.Component {
   componentDidMount() {
@@ -30,7 +31,12 @@ class App extends React.Component {
       View = TeamPlanningView;
     }
 
-    return <View socket={socket} />
+    return (
+      <>
+        <ToastContainer />
+        <View socket={socket} />
+      </>
+    );
   }
 }
 

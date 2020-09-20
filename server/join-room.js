@@ -26,7 +26,7 @@ function addListeners(io, socket) {
     // but the user id does not match, it's probably a diferent client so the
     // request is rejected.
     if (user && socket.handshake.query.userId !== user.id) {
-      return fn({ error: 'user already exists' });
+      return fn({ error: 'user exists' });
     }
 
     // If the user already exists, simply reassign the active socket for that user,

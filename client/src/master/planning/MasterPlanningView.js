@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import withNotifications from '../../common/withNotifications';
-import Alert from '../../common/Alert';
+import { notify, Toast } from '../../toast';
 import NoUsersMessage from '../NoUsersMessage';
 import MasterPage from '../MasterPage';
 import ResultsPanel from './ResultsPanel';
@@ -24,11 +23,11 @@ import {
   leaveRoom,
 } from '../../redux/ducks/room';
 
-function formatMsg(user, message) {
-  return <span><b>{user.username}</b> {message}!</span>;
+function userText(user, text) {
+  return <span><b>{user.username}</b> {text}!</span>;
 }
 
-function MasterPlanningView({ socket, notify }) {
+function MasterPlanningView({ socket }) {
   const users = useSelector(state => state.users);
   const room = useSelector(state => state.room);
   const dispatch = useDispatch();
@@ -54,11 +53,11 @@ function MasterPlanningView({ socket, notify }) {
     });
 
     socket.on('suggest break', (id) => {
-      notify({ type: 'info', message: formatMsg(users[id], 'sugiere un descanso')});
+      notify({ type: 'info', text: userText(users[id], 'sugiere un descanso')});
     });
 
     socket.on('user left', (id) => {
-      notify({ type: 'info', message: formatMsg(users[id], 'abandonó la sesión') });
+      notify({ type: 'info', text: userText(users[id], 'abandonó la sesión') });
 
       dispatch(removeUser(id));
     });
@@ -80,7 +79,7 @@ function MasterPlanningView({ socket, notify }) {
       socket.off('disconnect');
       socket.off('connect');
     };
-  }, [socket, dispatch, users, room, notify]);
+  }, [socket, dispatch, users, room]);
 
   useEffect(() => {
     // Check if the socket should be opened manually, this means that the user
@@ -126,12 +125,12 @@ function MasterPlanningView({ socket, notify }) {
 
   return (
     <MasterPage onLogout={handleLogout}>
-      <div className="alert-container">
-        {!connected && <Alert type="error">Sin conexion!</Alert>}
-      </div>
+      {!connected && (
+        <Toast type="error">Sin Conexion! Conenctando con Scrum Poker!...</Toast>
+      )}
 
       {room.voting && Object.keys(users).length === 0 ? (
-        <NoUsersMessage sessionId={room.id} />
+        <NoUsersMessage name={room.name} id={room.id} />
       ) : room.voting ? (
         <VotingPanel
           onEndVoting={handleEndVoting}
@@ -147,4 +146,4 @@ function MasterPlanningView({ socket, notify }) {
   );
 }
 
-export default withNotifications(MasterPlanningView);
+export default MasterPlanningView;
