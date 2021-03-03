@@ -7,7 +7,7 @@ import { RoleTypes } from './redux/ducks/role';
 import { TeamPlanningView } from './team';
 import { MasterPlanningView } from './master';
 
-const socket = io('', { autoConnect: false });
+const socket = io(`:${process.env.REACT_APP_SOCKET_IO_PORT}`, { autoConnect: false });
 
 class App extends React.Component {
   componentDidMount() {
